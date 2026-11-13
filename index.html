@@ -98,8 +98,17 @@
   }
   .btn.primary:hover{filter:brightness(1.08)}
 
+  /* Мобильное меню */
+  .mobile-menu-btn {
+    display:none; background:rgba(255,255,255,.05); border:1px solid var(--card-border);
+    color:var(--text); padding:10px 16px; border-radius:12px; font-weight:600;
+    cursor:pointer; margin: 0 auto 16px; width: 100%; max-width: 300px;
+    text-align: center; align-items: center; justify-content: center; gap: 8px;
+  }
+
   .tabs{
     display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:32px;
+    transition: max-height 0.3s ease;
   }
   .tab{
     padding:10px 16px;border-radius:12px;border:1px solid var(--card-border);
@@ -143,7 +152,6 @@
 
   .card.is-elective { border-color: rgba(255,184,77,.3); }
   .card.is-elective:hover { border-color: rgba(255,184,77,.6); }
-  
   .card.is-facultative { border-color: rgba(61,220,151,.3); background: rgba(61,220,151,.02); }
   .card.is-facultative:hover { border-color: rgba(61,220,151,.6); }
 
@@ -232,12 +240,12 @@
   }
   .warning-msg.active { display:block; }
 
-  .btn-target, .btn-save{
+  .btn-target, .btn-save, .btn-copy{
     background:rgba(255,255,255,.08);border:1px solid var(--card-border);
     border-radius:8px;padding:6px 10px;cursor:pointer;
     color:var(--text);font-size:16px;transition:.2s;display:flex;align-items:center;justify-content:center;
   }
-  .btn-target:hover, .btn-save:hover{background:rgba(108,140,255,.2);border-color:var(--accent)}
+  .btn-target:hover, .btn-save:hover, .btn-copy:hover{background:rgba(108,140,255,.2);border-color:var(--accent)}
   
   .btn-save {
     background: linear-gradient(135deg, rgba(61,220,151,.15), rgba(30,184,122,.15));
@@ -295,7 +303,6 @@
   .elective-label:hover {background:rgba(255,255,255,.1);}
   .elective-label input {cursor:pointer;}
 
-  /* Зачётка */
   .record-book-header {
     display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
     background:rgba(108,140,255,.08); border:1px solid rgba(108,140,255,.2);
@@ -334,7 +341,6 @@
   }
   .btn-return:hover { color:var(--accent); }
 
-  /* Модалки */
   .modal-overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(0,0,0,.7); backdrop-filter: blur(5px);
@@ -345,6 +351,7 @@
     background: #141a30; border: 1px solid var(--card-border);
     border-radius: 16px; padding: 24px; width: 90%; max-width: 500px;
     box-shadow: 0 20px 50px rgba(0,0,0,.5);
+    max-height: 85vh; overflow-y: auto;
   }
   .modal h3 { margin-top: 0; color: #fff; }
   .modal p { font-size: 13px; color: var(--muted); }
@@ -372,10 +379,40 @@
   }
   .switch-btn.active { background:var(--accent); color:#fff; }
 
+  .changelog-item {
+    border-bottom: 1px solid var(--card-border);
+    padding: 12px 0;
+  }
+  .changelog-item:last-child { border-bottom: none; }
+  .changelog-version {
+    font-weight: 800; color: var(--accent); font-size: 16px; margin-bottom: 4px;
+  }
+  .changelog-date {
+    font-size: 11px; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .changelog-desc {
+    font-size: 13px; color: var(--text); line-height: 1.5;
+  }
+
+  .footer-version {
+    text-align: center; margin-top: 40px; font-size: 12px; color: var(--muted);
+    cursor: pointer; transition: color 0.2s;
+  }
+  .footer-version:hover { color: var(--accent); }
+
   @media (max-width:650px){
     .grid{grid-template-columns:1fr}
     .record-card { flex-direction:column; align-items:flex-start; gap:16px; }
     .record-scores { margin-left:0; width:100%; justify-content:space-between; }
+    
+    .mobile-menu-btn { display: flex; }
+    .tabs {
+      display: none; flex-direction: column; align-items: stretch;
+      background: var(--bg2); border: 1px solid var(--card-border);
+      padding: 12px; border-radius: var(--radius); margin-bottom: 20px;
+    }
+    .tabs.show { display: flex; }
+    .tab { text-align: center; }
   }
   @media (max-width:420px){
     body{padding:20px 10px 60px}
@@ -412,6 +449,8 @@
       <button class="btn" id="importBtn">Импорт</button>
     </div>
 
+    <button class="mobile-menu-btn" id="mobileMenuBtn">☰ Показать фильтры</button>
+
     <div class="tabs" id="tabs">
       <button class="tab active" data-target="all">Все дисциплины</button>
       <button class="tab" data-target="m1">1 модуль</button>
@@ -422,7 +461,6 @@
       <button class="tab" data-target="facultative">Факультативы</button>
     </div>
 
-    <!-- Блок выбора дисциплин по выбору -->
     <div id="electivePrompt" class="prompt-block" style="display:none;">
       <h3>Выберите дисциплины по выбору</h3>
       <p>Отметьте те, которые вы посещаете. Остальные будут скрыты.</p>
@@ -430,21 +468,17 @@
       <button class="btn primary" id="saveElectives" style="margin-top:20px;">Сохранить выбор</button>
     </div>
 
-    <!-- Блок выбора факультативов -->
     <div id="facultativePrompt" class="prompt-block" style="display:none;">
       <h3>Выберите факультативы</h3>
       <p>Отметьте те, которые вы посещаете.</p>
-      
       <div class="prompt-group">
         <h4>Английский язык</h4>
         <div class="checkboxes-grid" id="englishCheckboxes"></div>
       </div>
-      
       <div class="prompt-group">
         <h4>Другие</h4>
         <div class="checkboxes-grid" id="otherFacCheckboxes"></div>
       </div>
-      
       <button class="btn primary" id="saveFacultatives" style="margin-top:20px;">Сохранить выбор</button>
     </div>
 
@@ -470,6 +504,10 @@
     </div>
 
     <div id="recordContainer" class="grid"></div>
+  </div>
+
+  <div class="footer-version" id="footerVersion">
+    Версия 1.3 · История обновлений
   </div>
 </div>
 
@@ -512,10 +550,17 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="changelogModal">
+  <div class="modal">
+    <h3>История версий</h3>
+    <div id="changelogList" style="margin-top: 16px;"></div>
+    <div class="modal-btns" style="margin-top: 20px;">
+      <button class="btn primary" id="changelogClose">Отлично</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ==========================================
-// 1. ВСТРОЕННАЯ БАЗА ДИСЦИПЛИН
-// ==========================================
 const BUILTIN_COURSES = [
   { id:"alg", name:"Алгебра и анализ", study:"1-2 модули", attest:"Аттестация: 2 модуль", groups:["m2"], items:[
     {label:"Домашняя контрольная работа", weight:0.06},
@@ -596,7 +641,6 @@ const BUILTIN_COURSES = [
   ]},
   { id:"soc2", name:"Социологическая теория", study:"1-4 модули", attest:"Аттестация: 2 модуль", groups:["m2"], isSociology:true, items:[] },
   { id:"soc4", name:"Социологическая теория", study:"1-4 модули", attest:"Аттестация: 4 модуль", groups:["m4"], isSociology:true, items:[] },
-  // Дисциплины по выбору
   { id:"el1", name:"Повседневность в советскую эпоху (1920–1980)", study:"3 модуль", attest:"Аттестация: 3 модуль", groups:["m3", "elective"], isElective:true, items:[
     {label:"Самостоятельная работа", weight:0.15},
     {label:"Групповая работа 1", weight:0.15},
@@ -618,7 +662,6 @@ const BUILTIN_COURSES = [
     {label:"Экзамен (защита эссе)", weight:0.40},
     {label:"Контрольная работа", weight:0.30},
   ]},
-  // Факультативы
   { id:"fac_eng1", name:"Английский язык. Базовый курс - 1", study:"1-4 модули", attest:"Экзамен: 2 модуль", groups:["m2", "facultative", "fac_eng"], isFacultative:true, items:[
     {label:"Самостоятельная работа", weight:0.25},
     {label:"Контрольные работы", weight:0.25},
@@ -658,19 +701,38 @@ const SOCIOLOGY_FORMULAS = {
   ]
 };
 
-// ==========================================
-// 2. СИСТЕМА СОХРАНЕНИЯ (Вечный ключ + Миграция)
-// ==========================================
+// === ИСТОРИЯ ВЕРСИЙ ===
+const CHANGELOG = [
+  {
+    version: "1.3",
+    date: "Сегодня",
+    desc: "Добавлено мобильное меню, кнопка копирования оценки, история версий. Исправлена ошибка с дублированием."
+  },
+  {
+    version: "1.2",
+    date: "Ранее",
+    desc: "Добавлены факультативы (Английский, Вайб-кодинг, ИИ), выбор дисциплин по выбору, кнопки сброса, умная миграция и вечный ключ хранения."
+  },
+  {
+    version: "1.1",
+    date: "Ранее",
+    desc: "Добавлена Зачётка, симулятор целей, поддержка блокирующих элементов (замок), 5-балльная шкала, учет правила округления < 4."
+  },
+  {
+    version: "1.0",
+    date: "Старт",
+    desc: "Первая версия калькулятора. Ввод баллов, расчет итоговой оценки и целей."
+  }
+];
+
 const STORAGE_KEY = 'hse_sociology_grades_master_v1';
 
 function loadState() {
-  // 1. Пытаемся загрузить данные с текущего "вечного" ключа
   let saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     try { return JSON.parse(saved); } catch (e) { console.warn("Ошибка парсинга текущих данных", e); }
   }
 
-  // 2. Если нет — ищем старые версии для миграции
   const oldKeys = [
     'hse_sociology_grades_final_v5',
     'hse_sociology_grades_final_v4',
@@ -684,11 +746,9 @@ function loadState() {
     if (oldData) {
       try {
         let parsed = JSON.parse(oldData);
-        // Если старые данные были просто объектом без active/archive
         if (!parsed.active) {
           parsed = { active: parsed, archive: {}, customCourses: [], electiveChoice: [], facultativeChoice: [] };
         }
-        // Дополняем недостающие поля
         if (!parsed.archive) parsed.archive = {};
         if (!parsed.customCourses) parsed.customCourses = [];
         if (!parsed.electiveChoice) parsed.electiveChoice = [];
@@ -696,24 +756,19 @@ function loadState() {
         
         console.log("Успешно мигрированы данные из " + key);
         return parsed;
-      } catch (e) {
-        console.warn("Ошибка чтения старых данных из " + key, e);
-      }
+      } catch (e) {}
     }
   }
 
-  // 3. Если ничего нет — чистая структура
   return { active: {}, archive: {}, customCourses: [], electiveChoice: [], facultativeChoice: [] };
 }
 
 let state = loadState();
 
-// Функция получения всех курсов
 function getAllCourses() {
   return [...BUILTIN_COURSES, ...state.customCourses];
 }
 
-// Получение актуальных items (с учетом социологии)
 function getCourseItems(course) {
   if (course.isSociology) {
     const mode = state.active[`${course.id}:mode`] || 'auto';
@@ -722,9 +777,6 @@ function getCourseItems(course) {
   return course.items;
 }
 
-// ==========================================
-// 3. DOM ЭЛЕМЕНТЫ
-// ==========================================
 const container = document.getElementById("sectionsContainer");
 const recordContainer = document.getElementById("recordContainer");
 const searchInput = document.getElementById("search");
@@ -755,9 +807,18 @@ function convertTo5Scale(score10) {
   return 2;
 }
 
-// ==========================================
-// 4. ЛОГИКА ИНТЕРФЕЙСА
-// ==========================================
+// Мобильное меню
+document.getElementById("mobileMenuBtn").addEventListener("click", () => {
+  const tabsEl = document.getElementById("tabs");
+  const btn = document.getElementById("mobileMenuBtn");
+  tabsEl.classList.toggle("show");
+  if (tabsEl.classList.contains("show")) {
+    btn.innerHTML = "✕ Скрыть фильтры";
+  } else {
+    btn.innerHTML = "☰ Показать фильтры";
+  }
+});
+
 mainTabs.forEach(tab => {
   tab.addEventListener("click", () => {
     mainTabs.forEach(t => t.classList.remove("active"));
@@ -937,6 +998,7 @@ function render() {
               </div>
               <div class="result-right">
                 <div class="result-rounded" data-rounded>—</div>
+                <button class="btn-copy" title="Скопировать оценку">📋</button>
                 <button class="btn-target" title="Рассчитать необходимый балл">🎯</button>
               </div>
             </div>
@@ -997,6 +1059,8 @@ document.getElementById("saveElectives").addEventListener("click", () => {
   if (checked.length === 0) { alert("Выберите хотя бы одну дисциплину!"); return; }
   state.electiveChoice = checked;
   saveState();
+  document.getElementById("tabs").classList.remove("show");
+  document.getElementById("mobileMenuBtn").innerHTML = "☰ Показать фильтры";
   render();
 });
 
@@ -1029,6 +1093,8 @@ document.getElementById("saveFacultatives").addEventListener("click", () => {
   if (checked.length === 0) { alert("Выберите хотя бы один факультатив!"); return; }
   state.facultativeChoice = checked;
   saveState();
+  document.getElementById("tabs").classList.remove("show");
+  document.getElementById("mobileMenuBtn").innerHTML = "☰ Показать фильтры";
   render();
 });
 
@@ -1082,6 +1148,32 @@ function attachEvents() {
         saveState();
         render();
       }
+    });
+  });
+
+  // Копирование
+  container.querySelectorAll(".btn-copy").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const card = e.target.closest(".card");
+      const course = getAllCourses().find(c => c.id === card.dataset.cardId);
+      const rounded = card.querySelector("[data-rounded]").textContent;
+      const exact = card.querySelector("[data-exact]").innerText.split(' ')[0];
+      
+      if(rounded === "—") {
+        btn.textContent = "❌";
+        setTimeout(() => btn.textContent = "📋", 1500);
+        return;
+      }
+
+      const textToCopy = `${course.name}: ${exact} (округлённая оценка: ${rounded})`;
+      navigator.clipboard.writeText(textToCopy).then(() => {
+        btn.textContent = "✅";
+        setTimeout(() => btn.textContent = "📋", 1500);
+      }).catch(() => {
+        btn.textContent = "❌";
+        setTimeout(() => btn.textContent = "📋", 1500);
+      });
     });
   });
 
@@ -1552,7 +1644,6 @@ function renderRecord() {
   });
 }
 
-// === МОДАЛКИ ===
 function openModal(type) {
   modalOverlay.classList.add("active");
   if (type === "export") {
@@ -1606,6 +1697,28 @@ document.getElementById("modalAction").addEventListener("click", () => {
     }
   } catch (err) {
     alert("Ошибка: не удалось прочитать данные.");
+  }
+});
+
+// История версий
+document.getElementById("footerVersion").addEventListener("click", () => {
+  const list = document.getElementById("changelogList");
+  list.innerHTML = CHANGELOG.map(v => `
+    <div class="changelog-item">
+      <div class="changelog-version">Версия ${v.version}</div>
+      <div class="changelog-date">${v.date}</div>
+      <div class="changelog-desc">${v.desc}</div>
+    </div>
+  `).join("");
+  document.getElementById("changelogModal").classList.add("active");
+});
+
+document.getElementById("changelogClose").addEventListener("click", () => {
+  document.getElementById("changelogModal").classList.remove("active");
+});
+document.getElementById("changelogModal").addEventListener("click", (e) => {
+  if (e.target === document.getElementById("changelogModal")) {
+    document.getElementById("changelogModal").classList.remove("active");
   }
 });
 
@@ -1680,6 +1793,8 @@ tabs.forEach(tab => {
     tab.classList.add("active");
     currentTab = tab.dataset.target;
     searchInput.value = "";
+    document.getElementById("tabs").classList.remove("show");
+    document.getElementById("mobileMenuBtn").innerHTML = "☰ Показать фильтры";
     render();
   });
 });
