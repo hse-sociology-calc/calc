@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="theme-color" content="#0b1020">
+<title>Калькулятор оценок — Социология ВШЭ</title>
+<link rel="manifest" href='data:application/manifest+json,{"name":"Оценки ВШЭ","short_name":"Оценки","start_url":".","display":"standalone","background_color":"#0b1020","theme_color":"#0b1020","icons":[{"src":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgcng9IjIwIiBmaWxsPSIjNmM4Y2ZmIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGRvbWluYW50LWJhc2VsaW5lPSJjZW50cmFsIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LXNpemU9IjUwIiBmb250LWZhbWlseT0ic2Fucy1zZXJpZiIgZm9udC13ZWlnaHQ9ImJvbGQiIGZpbGw9IiNmZmYiPjk8L3RleHQ+PC9zdmc+","sizes":"100x100","type":"image/svg+xml"}]}'>
+<style>
+  :root{
+    --bg:#0b1020;
+    --bg2:#141a30;
+    --card:rgba(255,255,255,.04);
+    --card-border:rgba(255,255,255,.1);
+    --text:#e8ecf7;
+    --muted:#9aa4bf;
+    --accent:#6c8cff;
+    --accent2:#8f6cff;
+    --good:#3ddc97;
+    --warn:#ffb84d;
+    --bad:#ff6b6b;
+    --elective-color:#ffb84d;
+    --facultative-color:#3ddc97;
+    --radius:18px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(108,140,255,.2), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(143,108,255,.15), transparent 60%),
+      linear-gradient(160deg, var(--bg), var(--bg2));
+    color:var(--text);
+    min-height:100vh;
+    padding:32px 16px 80px;
+  }
+  .container{max-width:1200px;margin:0 auto}
+
+  header{text-align:center;margin-bottom:24px}
+  h1{
+    font-size:clamp(24px,3.2vw,38px);
+    margin:0 0 8px;
+    background:linear-gradient(90deg,#fff,#b9c7ff,#cbb8ff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    font-weight:800;letter-spacing:-.5px;
+  }
+  header p{color:var(--muted);margin:0;font-size:15px}
+
+  .global-progress{
+    max-width:400px;margin:16px auto 0;
+    background:rgba(255,255,255,.05);border-radius:999px;height:8px;overflow:hidden;
+    border:1px solid var(--card-border);position:relative;
+  }
+  .global-progress-bar{
+    height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));
+    width:0%;transition:width .3s ease;
+  }
+  .global-progress-text{
+    text-align:center;font-size:12px;color:var(--muted);margin-top:6px;
+  }
+
+  .main-tabs {
+    display:flex; justify-content:center; gap:12px; margin:24px 0 32px;
+  }
+  .main-tab {
+    padding:12px 24px; border-radius:14px; border:1px solid var(--card-border);
+    background:rgba(255,255,255,.03); color:var(--muted); font-size:15px; font-weight:600;
+    cursor:pointer; transition:.2s; display:flex; align-items:center; gap:8px;
+  }
+  .main-tab:hover { background:rgba(255,255,255,.08); }
+  .main-tab.active {
+    background:linear-gradient(90deg, rgba(108,140,255,.2), rgba(143,108,255,.2));
+    color:#fff; border-color:var(--accent); box-shadow:0 4px 15px rgba(108,140,255,.2);
+  }
+
+  .toolbar{
+    display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
+    margin:28px 0 20px;
+  }
+  .toolbar input{
+    flex:1;min-width:220px;max-width:320px;
+    padding:14px 18px;border-radius:14px;
+    border:1px solid var(--card-border);
+    background:rgba(255,255,255,.05);
+    color:var(--text);font-size:15px;outline:none;transition:.2s;
+  }
+  .toolbar input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,140,255,.2)}
+  .btn{
+    padding:14px 20px;border-radius:14px;border:1px solid var(--card-border);
+    background:rgba(255,255,255,.05);color:var(--text);
+    font-weight:600;font-size:14px;cursor:pointer;transition:.2s;
+  }
+  .btn:hover{background:rgba(255,255,255,.1)}
+  .btn.primary {
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    border:none;color:#fff;box-shadow:0 8px 24px rgba(108,140,255,.35);
+  }
+  .btn.primary:hover{filter:brightness(1.08)}
+
+  .tabs{
+    display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:32px;
+  }
+  .tab{
+    padding:10px 16px;border-radius:12px;border:1px solid var(--card-border);
+    background:transparent;color:var(--muted);font-size:13px;font-weight:600;
+    cursor:pointer;transition:.2s;
+  }
+  .tab:hover{background:rgba(255,255,255,.05);color:var(--text)}
+  .tab.active{
+    background:rgba(108,140,255,.15);color:#b9c7ff;border-color:rgba(108,140,255,.4);
+  }
+
+  .section{display:none;animation:fadeIn .3s ease}
+  .section.active{display:block}
+  @keyframes fadeIn {from{opacity:0;transform:translateY(5px)} to{opacity:1;transform:none}}
+
+  .section-title{
+    margin:0 0 16px;font-size:15px;font-weight:700;
+    color:var(--text);display:flex;align-items:center;gap:10px;
+  }
+  .section-title::after{
+    content:"";flex:1;height:1px;background:var(--card-border);
+  }
+
+  .grid{
+    display:grid;gap:20px;
+    grid-template-columns:repeat(auto-fill,minmax(360px,1fr));
+    margin-bottom:40px;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--card-border);
+    border-radius:var(--radius);
+    padding:22px 22px 18px;
+    backdrop-filter: blur(14px);-webkit-backdrop-filter: blur(14px);
+    box-shadow:0 10px 30px rgba(0,0,0,.2);
+    transition:.25s;position:relative;
+    display:flex;flex-direction:column;
+  }
+  .card:hover{transform:translateY(-3px);border-color:rgba(108,140,255,.3)}
+
+  .card.is-elective { border-color: rgba(255,184,77,.3); }
+  .card.is-elective:hover { border-color: rgba(255,184,77,.6); }
+  
+  .card.is-facultative { border-color: rgba(61,220,151,.3); background: rgba(61,220,151,.02); }
+  .card.is-facultative:hover { border-color: rgba(61,220,151,.6); }
+
+  .card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+  .card-title{font-size:16px;margin:0;font-weight:700;letter-spacing:-.2px;line-height:1.3}
+  
+  .card-badges{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+  .badge{
+    font-size:10px;font-weight:600;padding:4px 8px;border-radius:6px;
+    text-transform:uppercase;letter-spacing:0.5px;white-space:nowrap;
+  }
+  .badge.study{background:rgba(255,255,255,.08);color:#b9c7ff;border:1px solid rgba(255,255,255,.1)}
+  .badge.attest{background:rgba(143,108,255,.15);color:#d4c4ff;border:1px solid rgba(143,108,255,.3)}
+  .badge.elective{background:rgba(255,184,77,.15);color:#ffd599;border:1px solid rgba(255,184,77,.3)}
+  .badge.facultative{background:rgba(61,220,151,.15);color:#a0f0d0;border:1px solid rgba(61,220,151,.3)}
+  
+  .btn-reset, .btn-delete {
+    background: rgba(255,255,255,.05); color: var(--muted); border: 1px solid var(--card-border);
+    border-radius: 8px; padding: 4px 8px; cursor: pointer; font-size: 11px; transition: .2s;
+  }
+  .btn-reset:hover { color: var(--warn); border-color: var(--warn); }
+  .btn-delete { background: rgba(255,107,107,.1); color: var(--bad); border-color: rgba(255,107,107,.2); }
+  .btn-delete:hover { background: rgba(255,107,107,.2); }
+
+  .card-actions {
+    display:flex; justify-content:space-between; align-items:center;
+    margin-bottom:12px; gap:8px;
+  }
+
+  .local-progress{
+    font-size:11px;color:var(--muted);margin-bottom:12px;
+    display:flex;justify-content:space-between;
+  }
+
+  .field{margin-bottom:10px;position:relative}
+  .field label{
+    display:flex;justify-content:space-between;gap:10px;
+    font-size:13px;color:#cdd5ea;margin-bottom:6px;line-height:1.35;
+  }
+  .field label span.w{color:#7f8aab;font-variant-numeric:tabular-nums;font-weight:600;flex-shrink:0}
+  .field input{
+    width:100%;padding:10px 12px;border-radius:10px;
+    border:1px solid var(--card-border);
+    background:rgba(0,0,0,.2);color:var(--text);font-size:14px;
+    outline:none;transition:.2s;
+  }
+  .field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(108,140,255,.15)}
+  .field input.warn-border{border-color:var(--warn);box-shadow:0 0 0 3px rgba(255,184,77,.15)}
+  .field input.block-fail{border-color:var(--bad);box-shadow:0 0 0 3px rgba(255,107,107,.2);background:rgba(255,107,107,.05)}
+
+  .field input::-webkit-outer-spin-button,
+  .field input::-webkit-inner-spin-button{ -webkit-appearance:none;margin:0 }
+  .field input[type=number]{ -moz-appearance:textfield }
+
+  .result-wrapper{
+    margin-top:auto;
+    background:rgba(0,0,0,.3);border:1px solid var(--card-border);
+    border-radius:14px;overflow:hidden;transition:.2s;
+  }
+  .result{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:16px;gap:12px;
+  }
+  .result-info{flex:1}
+  .result-label{font-size:11px;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;font-weight:600}
+  .result-exact{font-size:14px;font-weight:600;color:#cdd5ea;margin-top:4px;font-variant-numeric:tabular-nums}
+  .result-exact span{color:var(--muted);font-weight:400;font-size:12px}
+  .result-5scale{font-size:12px;color:var(--muted);margin-top:2px}
+  
+  .result-right{display:flex;align-items:center;gap:12px}
+  
+  .result-rounded {
+    font-size:36px;font-weight:800;line-height:1;
+    font-variant-numeric:tabular-nums;
+    background:linear-gradient(135deg, #fff, #b9c7ff);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-align:right;min-width:60px;
+  }
+  .result-rounded.good{background:linear-gradient(135deg, #3ddc97, #1eb87a); -webkit-background-clip:text;background-clip:text;}
+  .result-rounded.warn{background:linear-gradient(135deg, #ffb84d, #ff9500); -webkit-background-clip:text;background-clip:text;}
+  .result-rounded.bad{background:linear-gradient(135deg, #ff6b6b, #d64545); -webkit-background-clip:text;background-clip:text;}
+
+  .warning-msg {
+    font-size:11px;color:var(--bad);margin-top:6px;line-height:1.4;
+    display:none;
+  }
+  .warning-msg.active { display:block; }
+
+  .btn-target, .btn-save{
+    background:rgba(255,255,255,.08);border:1px solid var(--card-border);
+    border-radius:8px;padding:6px 10px;cursor:pointer;
+    color:var(--text);font-size:16px;transition:.2s;display:flex;align-items:center;justify-content:center;
+  }
+  .btn-target:hover, .btn-save:hover{background:rgba(108,140,255,.2);border-color:var(--accent)}
+  
+  .btn-save {
+    background: linear-gradient(135deg, rgba(61,220,151,.15), rgba(30,184,122,.15));
+    border-color: rgba(61,220,151,.4);
+    color: var(--good);
+    font-weight: 600; font-size: 13px; padding: 8px 12px;
+    margin-top: 12px; width: 100%;
+  }
+  .btn-save:hover {
+    background: linear-gradient(135deg, rgba(61,220,151,.25), rgba(30,184,122,.25));
+    box-shadow: 0 4px 15px rgba(61,220,151,.2);
+  }
+
+  .target-panel{
+    display:none;padding:12px 16px 16px;
+    background:rgba(108,140,255,.05);border-top:1px solid var(--card-border);
+    font-size:13px;
+  }
+  .target-panel.active{display:block;animation:slideDown .2s ease}
+  @keyframes slideDown {from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:none}}
+
+  .target-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .target-title{font-weight:600;color:#b9c7ff;font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
+  .target-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;padding:0}
+  .target-close:hover{color:var(--text)}
+
+  .target-options{display:flex;gap:6px;margin-bottom:10px}
+  .target-btn{
+    flex:1;padding:6px;border-radius:6px;border:1px solid var(--card-border);
+    background:rgba(255,255,255,.05);color:var(--text);cursor:pointer;font-weight:600;font-size:13px;transition:.2s;
+  }
+  .target-btn:hover{background:rgba(255,255,255,.1)}
+  .target-btn.active{background:var(--accent);border-color:var(--accent);color:#fff}
+
+  .target-result{color:#cdd5ea;line-height:1.5;font-size:13px}
+  .target-result strong{color:var(--good)}
+  .target-result .impossible{color:var(--bad)}
+
+  .empty-state{text-align:center;color:var(--muted);padding:40px 20px;font-size:15px}
+
+  .prompt-block {
+    background:rgba(108,140,255,.05);border:1px dashed var(--accent);
+    border-radius:var(--radius);padding:32px;text-align:center;margin-bottom:24px;
+  }
+  .prompt-block h3 {margin:0 0 8px;color:#fff;}
+  .prompt-block p {color:var(--muted);font-size:14px;margin-bottom:20px;}
+  .prompt-group { margin-bottom: 24px; text-align: left; }
+  .prompt-group h4 { margin: 0 0 12px; font-size: 14px; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; }
+  .checkboxes-grid {display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:12px; justify-content:center;}
+  .elective-label {
+    background:rgba(255,255,255,.05);padding:12px 16px;border-radius:12px;
+    border:1px solid var(--card-border);cursor:pointer;transition:.2s;
+    display:flex;align-items:center;gap:10px;font-size:13px;
+  }
+  .elective-label:hover {background:rgba(255,255,255,.1);}
+  .elective-label input {cursor:pointer;}
+
+  /* Зачётка */
+  .record-book-header {
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px;
+    background:rgba(108,140,255,.08); border:1px solid rgba(108,140,255,.2);
+    padding:20px; border-radius:var(--radius); margin-bottom:32px;
+  }
+  .gpa-box { display:flex; gap:32px; }
+  .gpa-item { text-align:left; }
+  .gpa-val { font-size:28px; font-weight:800; color:#fff; line-height:1.1; }
+  .gpa-label { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:1px; margin-top:4px; }
+  
+  .record-card {
+    background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius);
+    padding:20px; display:flex; justify-content:space-between; align-items:center;
+    transition:.2s; position:relative; overflow:hidden;
+  }
+  .record-card:hover { border-color:rgba(108,140,255,.3); background:rgba(255,255,255,.06); }
+  .record-card.failed { border-color:rgba(255,107,107,.3); background:rgba(255,107,107,.05); }
+  .record-card.is-facultative { border-color: rgba(61,220,151,.3); background: rgba(61,220,151,.02); }
+  
+  .record-info { flex:1; }
+  .record-title { font-size:16px; font-weight:700; margin:0 0 4px; display:flex; align-items:center; gap:8px;}
+  .record-meta { font-size:12px; color:var(--muted); display:flex; gap:12px; margin-bottom:8px; }
+  .record-exact { font-size:13px; color:#cdd5ea; font-variant-numeric:tabular-nums; }
+  
+  .record-scores { display:flex; align-items:center; gap:20px; margin-left:20px; }
+  .record-score-big { font-size:32px; font-weight:800; color:var(--good); line-height:1; }
+  .record-score-big.failed { color:var(--bad); }
+  .record-score-5 { font-size:14px; font-weight:600; color:var(--muted); background:rgba(255,255,255,.05); padding:4px 8px; border-radius:6px; border:1px solid var(--card-border); }
+  
+  .record-actions { display:flex; gap:8px; margin-top:8px; align-items:center; }
+  .gpa-checkbox { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); cursor:pointer; }
+  
+  .btn-return {
+    background:none; border:none; cursor:pointer; font-size:12px; color:var(--muted); padding:4px;
+    transition:.2s; text-decoration:underline;
+  }
+  .btn-return:hover { color:var(--accent); }
+
+  /* Модалки */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,.7); backdrop-filter: blur(5px);
+    display: none; align-items: center; justify-content: center; z-index: 1000;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    background: #141a30; border: 1px solid var(--card-border);
+    border-radius: 16px; padding: 24px; width: 90%; max-width: 500px;
+    box-shadow: 0 20px 50px rgba(0,0,0,.5);
+  }
+  .modal h3 { margin-top: 0; color: #fff; }
+  .modal p { font-size: 13px; color: var(--muted); }
+  .modal textarea {
+    width: 100%; height: 100px; background: rgba(0,0,0,.3);
+    border: 1px solid var(--card-border); border-radius: 8px;
+    color: var(--text); padding: 10px; font-family: monospace; font-size: 12px;
+    resize: none; margin-bottom: 12px; outline: none;
+  }
+  .modal-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+  .custom-form { display:flex; flex-direction:column; gap:12px; }
+  .custom-form input { padding:10px; border-radius:8px; border:1px solid var(--card-border); background:rgba(0,0,0,.2); color:#fff; outline:none; }
+  .custom-items { display:flex; gap:8px; align-items:center; }
+  .custom-items input { flex:1; }
+  .custom-items button { background:var(--bad); border:none; color:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; }
+
+  .switch-container {
+    display:flex; gap:8px; margin-bottom:16px; background:rgba(0,0,0,.3);
+    padding:4px; border-radius:12px; border:1px solid var(--card-border);
+  }
+  .switch-btn {
+    flex:1; padding:8px; border-radius:8px; border:none; background:transparent;
+    color:var(--muted); cursor:pointer; font-weight:600; font-size:13px; transition:.2s;
+  }
+  .switch-btn.active { background:var(--accent); color:#fff; }
+
+  @media (max-width:650px){
+    .grid{grid-template-columns:1fr}
+    .record-card { flex-direction:column; align-items:flex-start; gap:16px; }
+    .record-scores { margin-left:0; width:100%; justify-content:space-between; }
+  }
+  @media (max-width:420px){
+    body{padding:20px 10px 60px}
+    .result-rounded{font-size:30px}
+    .toolbar { flex-direction: column; align-items: stretch; }
+    .toolbar input { max-width: none; }
+    .main-tabs { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Калькулятор оценок</h1>
+    <p>Направление «Социология» · НИУ ВШЭ</p>
+    
+    <div class="global-progress" id="globalProgressContainer">
+      <div class="global-progress-bar" id="globalBar"></div>
+    </div>
+    <div class="global-progress-text" id="globalText">Заполнено 0 из 0 полей</div>
+  </header>
+
+  <div class="main-tabs">
+    <button class="main-tab active" data-view="calc">📊 Калькулятор</button>
+    <button class="main-tab" data-view="record">📖 Зачётка</button>
+  </div>
+
+  <div id="viewCalc">
+    <div class="toolbar">
+      <input id="search" type="text" placeholder="Поиск дисциплины..." />
+      <button class="btn primary" id="addCustomBtn">+ Создать дисциплину</button>
+      <button class="btn" id="clearAllBtn">Сбросить всё</button>
+      <button class="btn" id="exportBtn">Экспорт</button>
+      <button class="btn" id="importBtn">Импорт</button>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-target="all">Все дисциплины</button>
+      <button class="tab" data-target="m1">1 модуль</button>
+      <button class="tab" data-target="m2">2 модуль</button>
+      <button class="tab" data-target="m3">3 модуль</button>
+      <button class="tab" data-target="m4">4 модуль</button>
+      <button class="tab" data-target="elective">По выбору</button>
+      <button class="tab" data-target="facultative">Факультативы</button>
+    </div>
+
+    <!-- Блок выбора дисциплин по выбору -->
+    <div id="electivePrompt" class="prompt-block" style="display:none;">
+      <h3>Выберите дисциплины по выбору</h3>
+      <p>Отметьте те, которые вы посещаете. Остальные будут скрыты.</p>
+      <div class="checkboxes-grid" id="electiveCheckboxes"></div>
+      <button class="btn primary" id="saveElectives" style="margin-top:20px;">Сохранить выбор</button>
+    </div>
+
+    <!-- Блок выбора факультативов -->
+    <div id="facultativePrompt" class="prompt-block" style="display:none;">
+      <h3>Выберите факультативы</h3>
+      <p>Отметьте те, которые вы посещаете.</p>
+      
+      <div class="prompt-group">
+        <h4>Английский язык</h4>
+        <div class="checkboxes-grid" id="englishCheckboxes"></div>
+      </div>
+      
+      <div class="prompt-group">
+        <h4>Другие</h4>
+        <div class="checkboxes-grid" id="otherFacCheckboxes"></div>
+      </div>
+      
+      <button class="btn primary" id="saveFacultatives" style="margin-top:20px;">Сохранить выбор</button>
+    </div>
+
+    <div id="sectionsContainer"></div>
+  </div>
+
+  <div id="viewRecord" style="display:none;">
+    <div class="record-book-header">
+      <div>
+        <h2 style="margin:0 0 4px; font-size:20px;">Моя зачётка</h2>
+        <div style="font-size:12px; color:var(--muted);">Сданные дисциплины</div>
+      </div>
+      <div class="gpa-box">
+        <div class="gpa-item">
+          <div class="gpa-val" id="gpa10">0.0</div>
+          <div class="gpa-label">Средний (10)</div>
+        </div>
+        <div class="gpa-item">
+          <div class="gpa-val" id="gpa5">0.0</div>
+          <div class="gpa-label">Средний (5)</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="recordContainer" class="grid"></div>
+  </div>
+</div>
+
+<!-- Модалки -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Экспорт данных</h3>
+    <p id="modalDesc">Скопируйте этот текст и сохраните в надежном месте.</p>
+    <textarea id="modalTextarea" readonly></textarea>
+    <div class="modal-btns">
+      <button class="btn" id="modalClose">Закрыть</button>
+      <button class="btn" id="modalAction" style="display:none;">Загрузить</button>
+      <button class="btn" id="modalCopy" style="display:none; background:linear-gradient(90deg,var(--accent),var(--accent2)); border:none;">Копировать</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="customModal">
+  <div class="modal" style="max-width:600px;">
+    <h3>Создать свою дисциплину</h3>
+    <div class="custom-form">
+      <input type="text" id="customName" placeholder="Название дисциплины" required />
+      <input type="text" id="customStudy" placeholder="Изучается (например, '1-2 модули')" />
+      <input type="text" id="customAttest" placeholder="Аттестация (например, '2 модуль')" />
+      <select id="customGroup" style="padding:10px; border-radius:8px; border:1px solid var(--card-border); background:rgba(0,0,0,.2); color:#fff;">
+        <option value="m1">1 модуль</option>
+        <option value="m2">2 модуль</option>
+        <option value="m3">3 модуль</option>
+        <option value="m4">4 модуль</option>
+      </select>
+      
+      <div id="customItemsList" style="display:flex; flex-direction:column; gap:8px; max-height:200px; overflow-y:auto;"></div>
+      <button class="btn" id="addCustomItem" type="button">+ Добавить элемент</button>
+      
+      <div style="text-align:right; margin-top:12px;">
+        <button class="btn" id="customCancel">Отмена</button>
+        <button class="btn primary" id="customSave">Создать</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==========================================
+// 1. ВСТРОЕННАЯ БАЗА ДИСЦИПЛИН
+// ==========================================
+const BUILTIN_COURSES = [
+  { id:"alg", name:"Алгебра и анализ", study:"1-2 модули", attest:"Аттестация: 2 модуль", groups:["m2"], items:[
+    {label:"Домашняя контрольная работа", weight:0.06},
+    {label:"Итоговая контрольная работа (БЛОК)", weight:0.42, isBlock:true},
+    {label:"Семинарская активность (2 модуль)", weight:0.12},
+    {label:"Семинарская активность (1 модуль)", weight:0.12},
+    {label:"Контрольная работа", weight:0.28},
+  ]},
+  { id:"bjd", name:"Безопасность жизнедеятельности", study:"1-2 модули", attest:"Аттестация: 2 модуль", groups:["m2"], items:[
+    {label:"Итоговое тестирование", weight:0.35},
+    {label:"ДЗ №1: «Анкетирование о траектории развития в НИУ ВШЭ»", weight:0.15},
+    {label:"ДЗ №3: «Экстра. Треки внеучебного развития»", weight:0.25},
+    {label:"Курс «Учеба без стресса»", weight:0.10},
+    {label:"ДЗ №2: «Цитирование»", weight:0.15},
+  ]},
+  { id:"hist2", name:"История России", study:"1-4 модули", attest:"Аттестация: 2 модуль", groups:["m2"], items:[
+    {label:"Семинарские занятия (1)", weight:0.29},
+    {label:"Семинарские занятия (2)", weight:0.29},
+    {label:"Самостоятельная работа / СмартЛМС", weight:0.21},
+    {label:"Экзамен", weight:0.21},
+  ]},
+  { id:"hist4", name:"История России", study:"1-4 модули", attest:"Аттестация: 4 модуль", groups:["m4"], items:[
+    {label:"Семинарские занятия (1)", weight:0.25},
+    {label:"Экзамен", weight:0.15},
+    {label:"Проектная деятельность", weight:0.20},
+    {label:"Семинарские занятия (2)", weight:0.25},
+    {label:"Самостоятельная работа / СмартЛМС", weight:0.15},
+  ]},
+  { id:"micro", name:"Микроэкономика", study:"1-2 модули", attest:"Аттестация: 2 модуль", groups:["m2"], items:[
+    {label:"Project", weight:0.18},
+    {label:"In-class assignment", weight:0.24},
+    {label:"Экзамен", weight:0.40},
+    {label:"Independent work", weight:0.09},
+    {label:"Independent work (доп.)", weight:0.09},
+  ]},
+  { id:"macro", name:"Макроэкономика", study:"3-4 модули", attest:"Аттестация: 4 модуль", groups:["m4"], items:[
+    {label:"Project", weight:0.12},
+    {label:"Экзамен", weight:0.40},
+    {label:"In-class assignment", weight:0.18},
+    {label:"Independent work", weight:0.06},
+    {label:"Independent work (доп.)", weight:0.24},
+  ]},
+  { id:"org", name:"Основы Российской государственности", study:"1 модуль", attest:"Аттестация: 1 модуль", groups:["m1"], items:[
+    {label:"Экзамен", weight:0.10},
+    {label:"Семинарские занятия на СмартЛМС", weight:0.15},
+    {label:"Проектная деятельность", weight:0.15},
+    {label:"Семинарские занятия", weight:0.60},
+  ]},
+  { id:"pravo", name:"Правовая грамотность", study:"1-2 модули", attest:"Аттестация: 2 модуль", groups:["m2"], items:[
+    {label:"Экзамен (итоговый тест)", weight:0.40},
+    {label:"Промежуточные контрольные работы (тесты)", weight:0.15},
+    {label:"Контрольная работа", weight:0.20},
+    {label:"Активность в учебном процессе", weight:0.25},
+  ]},
+  { id:"prof2", name:"Профориентационный семинар ак. руководителя", study:"1-4 модули", attest:"Аттестация: 2 модуль", groups:["m2"], items:[
+    {label:"Групповой проект", weight:0.42},
+    {label:"Аудиторная работа на семинарах", weight:0.29},
+    {label:"Аудиторная работа (доп.)", weight:0.29},
+  ]},
+  { id:"prof4", name:"Профориентационный семинар ак. руководителя", study:"1-4 модули", attest:"Аттестация: 4 модуль", groups:["m4"], items:[
+    {label:"Аудиторная работа на семинарах", weight:0.29},
+    {label:"Групповой проект", weight:0.42},
+    {label:"Групповой проект (доп.)", weight:0.29},
+  ]},
+  { id:"work4", name:"Работа с социологической информацией", study:"4 модуль", attest:"Аттестация: 4 модуль", groups:["m4"], items:[
+    {label:"Составление библиографии", weight:0.10},
+    {label:"Поиск статьи со шкалой/методикой", weight:0.10},
+    {label:"Аннотированное описание источников", weight:0.10},
+    {label:"Сравнение двух статей", weight:0.10},
+    {label:"Обсуждение идей с ИИ", weight:0.10},
+    {label:"Экзамен", weight:0.40},
+    {label:"Поиск вторичных данных", weight:0.10},
+  ]},
+  { id:"tvs", name:"Теория вероятности и мат. статистика", study:"3-4 модули", attest:"Аттестация: 3 модуль", groups:["m3"], items:[
+    {label:"Контрольная работа №1", weight:0.20},
+    {label:"Контрольная работа №2", weight:0.20},
+    {label:"Экзамен (письменный)", weight:0.60},
+  ]},
+  { id:"soc2", name:"Социологическая теория", study:"1-4 модули", attest:"Аттестация: 2 модуль", groups:["m2"], isSociology:true, items:[] },
+  { id:"soc4", name:"Социологическая теория", study:"1-4 модули", attest:"Аттестация: 4 модуль", groups:["m4"], isSociology:true, items:[] },
+  // Дисциплины по выбору
+  { id:"el1", name:"Повседневность в советскую эпоху (1920–1980)", study:"3 модуль", attest:"Аттестация: 3 модуль", groups:["m3", "elective"], isElective:true, items:[
+    {label:"Самостоятельная работа", weight:0.15},
+    {label:"Групповая работа 1", weight:0.15},
+    {label:"Групповая работа 2", weight:0.15},
+    {label:"Аудиторная работа", weight:0.15},
+    {label:"Итоговая работа (экзамен)", weight:0.40},
+  ]},
+  { id:"el2", name:"Социологические исследования в академии и индустрии", study:"3 модуль", attest:"Аттестация: 3 модуль", groups:["m3", "elective"], isElective:true, items:[
+    {label:"Проект исследования", weight:0.30},
+    {label:"Рецензия", weight:0.30},
+    {label:"Активность на занятиях", weight:0.40},
+  ]},
+  { id:"el3", name:"Социология экономической жизни", study:"3 модуль", attest:"Аттестация: 3 модуль", groups:["m3", "elective"], isElective:true, items:[
+    {label:"Письменное задание", weight:0.50},
+    {label:"Устная активность на занятиях", weight:0.50},
+  ]},
+  { id:"el4", name:"Теории иллюзорных форм сознания", study:"3 модуль", attest:"Аттестация: 3 модуль", groups:["m3", "elective"], isElective:true, items:[
+    {label:"Домашние задания, участие в обсуждениях", weight:0.30},
+    {label:"Экзамен (защита эссе)", weight:0.40},
+    {label:"Контрольная работа", weight:0.30},
+  ]},
+  // Факультативы
+  { id:"fac_eng1", name:"Английский язык. Базовый курс - 1", study:"1-4 модули", attest:"Экзамен: 2 модуль", groups:["m2", "facultative", "fac_eng"], isFacultative:true, items:[
+    {label:"Самостоятельная работа", weight:0.25},
+    {label:"Контрольные работы", weight:0.25},
+    {label:"Устный контроль", weight:0.20},
+    {label:"Экзамен", weight:0.30},
+  ]},
+  { id:"fac_vibe", name:"Вайб-кодинг: как менеджеру быстро собрать MVP", study:"2 модуль", attest:"Аттестация: 2 модуль", groups:["m2", "facultative", "fac_other"], isFacultative:true, items:[
+    {label:"A. Постановка задачи и границы MVP", weight:0.25},
+    {label:"B. Работоспособность решения", weight:0.35},
+    {label:"C. Проверка итогового решения и ограничения", weight:0.20},
+    {label:"D. Представление и объяснение решений", weight:0.10},
+    {label:"R. Участие в перекрёстной проверке", weight:0.10},
+  ]},
+  { id:"fac_ai", name:"Введение в искусственный интеллект: инструменты и промпты", study:"2 модуль", attest:"Аттестация: 2 модуль", groups:["m2", "facultative", "fac_other"], isFacultative:true, items:[
+    {label:"ДЗ1. Тест «Языковые модели и промптинг»", weight:0.15},
+    {label:"ДЗ2. Тест «Тексты и аналитика»", weight:0.15},
+    {label:"ДЗ3. Тест «Изображения, презентации, аудио и видео»", weight:0.15},
+    {label:"ДЗ4. Тест «ИИ-ассистенты и автоматизация»", weight:0.15},
+    {label:"ДЗ5. Тест «Этика, безопасность и право»", weight:0.15},
+    {label:"Групповой проект", weight:0.25},
+  ]},
+];
+
+const SOCIOLOGY_FORMULAS = {
+  auto: [
+    {label:"Посещение лекций", weight:0.10},
+    {label:"Семинарская активность", weight:0.40},
+    {label:"Эссе", weight:0.25},
+    {label:"Контрольная работа", weight:0.25},
+  ],
+  exam: [
+    {label:"Экзамен", weight:0.40},
+    {label:"Посещение лекций", weight:0.10 * 0.6},
+    {label:"Семинарская активность", weight:0.40 * 0.6},
+    {label:"Эссе", weight:0.25 * 0.6},
+    {label:"Контрольная работа", weight:0.25 * 0.6},
+  ]
+};
+
+// ==========================================
+// 2. СИСТЕМА СОХРАНЕНИЯ (Вечный ключ + Миграция)
+// ==========================================
+const STORAGE_KEY = 'hse_sociology_grades_master_v1';
+
+function loadState() {
+  // 1. Пытаемся загрузить данные с текущего "вечного" ключа
+  let saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) {
+    try { return JSON.parse(saved); } catch (e) { console.warn("Ошибка парсинга текущих данных", e); }
+  }
+
+  // 2. Если нет — ищем старые версии для миграции
+  const oldKeys = [
+    'hse_sociology_grades_final_v5',
+    'hse_sociology_grades_final_v4',
+    'hse_sociology_grades_final_v3',
+    'hse_sociology_grades_final_v2',
+    'hse_sociology_grades_final_v1'
+  ];
+
+  for (const key of oldKeys) {
+    let oldData = localStorage.getItem(key);
+    if (oldData) {
+      try {
+        let parsed = JSON.parse(oldData);
+        // Если старые данные были просто объектом без active/archive
+        if (!parsed.active) {
+          parsed = { active: parsed, archive: {}, customCourses: [], electiveChoice: [], facultativeChoice: [] };
+        }
+        // Дополняем недостающие поля
+        if (!parsed.archive) parsed.archive = {};
+        if (!parsed.customCourses) parsed.customCourses = [];
+        if (!parsed.electiveChoice) parsed.electiveChoice = [];
+        if (!parsed.facultativeChoice) parsed.facultativeChoice = [];
+        
+        console.log("Успешно мигрированы данные из " + key);
+        return parsed;
+      } catch (e) {
+        console.warn("Ошибка чтения старых данных из " + key, e);
+      }
+    }
+  }
+
+  // 3. Если ничего нет — чистая структура
+  return { active: {}, archive: {}, customCourses: [], electiveChoice: [], facultativeChoice: [] };
+}
+
+let state = loadState();
+
+// Функция получения всех курсов
+function getAllCourses() {
+  return [...BUILTIN_COURSES, ...state.customCourses];
+}
+
+// Получение актуальных items (с учетом социологии)
+function getCourseItems(course) {
+  if (course.isSociology) {
+    const mode = state.active[`${course.id}:mode`] || 'auto';
+    return SOCIOLOGY_FORMULAS[mode];
+  }
+  return course.items;
+}
+
+// ==========================================
+// 3. DOM ЭЛЕМЕНТЫ
+// ==========================================
+const container = document.getElementById("sectionsContainer");
+const recordContainer = document.getElementById("recordContainer");
+const searchInput = document.getElementById("search");
+const globalBar = document.getElementById("globalBar");
+const globalText = document.getElementById("globalText");
+const tabs = document.querySelectorAll(".tab");
+
+const mainTabs = document.querySelectorAll(".main-tab");
+const viewCalc = document.getElementById("viewCalc");
+const viewRecord = document.getElementById("viewRecord");
+const globalProgressContainer = document.getElementById("globalProgressContainer");
+const gpa10El = document.getElementById("gpa10");
+const gpa5El = document.getElementById("gpa5");
+
+const electivePrompt = document.getElementById("electivePrompt");
+const facultativePrompt = document.getElementById("facultativePrompt");
+
+let currentTab = "all";
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function convertTo5Scale(score10) {
+  if (score10 >= 8) return 5;
+  if (score10 >= 6) return 4;
+  if (score10 >= 4) return 3;
+  return 2;
+}
+
+// ==========================================
+// 4. ЛОГИКА ИНТЕРФЕЙСА
+// ==========================================
+mainTabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    mainTabs.forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    
+    if (tab.dataset.view === "calc") {
+      viewCalc.style.display = "block";
+      viewRecord.style.display = "none";
+      globalProgressContainer.style.display = "block";
+      globalText.style.display = "block";
+      render();
+    } else {
+      viewCalc.style.display = "none";
+      viewRecord.style.display = "block";
+      globalProgressContainer.style.display = "none";
+      globalText.style.display = "none";
+      renderRecord();
+    }
+  });
+});
+
+function render() {
+  const query = searchInput.value.trim().toLowerCase();
+  container.innerHTML = "";
+
+  if (currentTab === "elective" && state.electiveChoice.length === 0 && query === "") {
+    electivePrompt.style.display = "block";
+    renderElectiveCheckboxes();
+    return;
+  } else {
+    electivePrompt.style.display = "none";
+  }
+
+  if (currentTab === "facultative" && state.facultativeChoice.length === 0 && query === "") {
+    facultativePrompt.style.display = "block";
+    renderFacultativeCheckboxes();
+    return;
+  } else {
+    facultativePrompt.style.display = "none";
+  }
+
+  const groups = {
+    m1: { title: "1 модуль", items: [] },
+    m2: { title: "2 модуль", items: [] },
+    m3: { title: "3 модуль", items: [] },
+    m4: { title: "4 модуль", items: [] },
+    elective: { title: "Дисциплины по выбору", items: [] },
+    facultative: { title: "Факультативы", items: [] }
+  };
+
+  const allCourses = getAllCourses();
+
+  allCourses.forEach(course => {
+    if (state.archive[course.id]) return;
+    if (course.isElective && !state.electiveChoice.includes(course.id)) return;
+    if (course.isFacultative && !state.facultativeChoice.includes(course.id)) return;
+    if (query && !course.name.toLowerCase().includes(query)) return;
+
+    course.groups.forEach(g => {
+      if (groups[g] && !groups[g].items.includes(course)) {
+        groups[g].items.push(course);
+      }
+    });
+  });
+
+  let hasVisibleSections = false;
+
+  for (const key in groups) {
+    const group = groups[key];
+    const isTabActive = (currentTab === "all" || currentTab === key || query !== "");
+    
+    if (group.items.length === 0 || !isTabActive) continue;
+    hasVisibleSections = true;
+
+    const section = document.createElement("div");
+    section.className = "section active";
+    
+    let html = `<div class="section-title">${group.title}</div>`;
+    
+    if (key === "elective" && state.electiveChoice.length > 0) {
+      html += `<button class="btn" style="margin-bottom:16px; font-size:12px; padding:8px 12px;" onclick="resetElectiveChoice()">↺ Изменить выбор</button>`;
+    }
+    if (key === "facultative" && state.facultativeChoice.length > 0) {
+      html += `<button class="btn" style="margin-bottom:16px; font-size:12px; padding:8px 12px;" onclick="resetFacultativeChoice()">↺ Изменить выбор</button>`;
+    }
+    
+    html += `<div class="grid">`;
+    
+    group.items.forEach(course => {
+      const items = getCourseItems(course);
+      
+      const filledCount = items.filter((_, i) => {
+        const val = state.active[`${course.id}:${i}`];
+        return val !== undefined && val !== "";
+      }).length;
+      
+      let itemsHTML = "";
+      
+      if (course.isSociology) {
+        const mode = state.active[`${course.id}:mode`] || 'auto';
+        itemsHTML += `
+          <div class="switch-container">
+            <button class="switch-btn ${mode === 'auto' ? 'active' : ''}" data-id="${course.id}" data-mode="auto">Автомат</button>
+            <button class="switch-btn ${mode === 'exam' ? 'active' : ''}" data-id="${course.id}" data-mode="exam">С экзаменом</button>
+          </div>
+        `;
+      }
+
+      itemsHTML += items.map((it, j) => {
+        const key = `${course.id}:${j}`;
+        const val = state.active[key] !== undefined ? state.active[key] : "";
+        let warnClass = (val === "" && filledCount > 0) ? "warn-border" : "";
+        
+        if (it.isBlock && val !== "") {
+          const num = parseFloat(val.replace(",", "."));
+          if (num < 4) warnClass = "block-fail";
+        }
+
+        const blockBadge = it.isBlock ? `🔒` : "";
+
+        return `
+          <div class="field">
+            <label>
+              <span>${blockBadge} ${it.label}</span>
+              <span class="w">${(it.weight*100).toFixed(1)}%</span>
+            </label>
+            <input type="number" min="0" max="10" step="0.01" inputmode="decimal"
+                   class="${warnClass}"
+                   data-id="${course.id}" data-index="${j}" data-weight="${it.weight}" data-block="${it.isBlock || false}"
+                   value="${val}" placeholder="—" />
+          </div>
+        `;
+      }).join("");
+
+      let cardClasses = "card";
+      if (course.isElective) cardClasses += " is-elective";
+      if (course.isFacultative) cardClasses += " is-facultative";
+
+      let badgeExtra = "";
+      if (course.isElective) badgeExtra = `<span class="badge elective">По выбору</span>`;
+      if (course.isFacultative) badgeExtra = `<span class="badge facultative">Факультатив</span>`;
+      
+      const deleteBtn = course.isCustom ? `<button class="btn-delete" data-id="${course.id}" title="Удалить">✕</button>` : "";
+      const resetBtn = `<button class="btn-reset" data-id="${course.id}" title="Сбросить баллы">↺ Сбросить</button>`;
+
+      html += `
+        <div class="${cardClasses}" data-card-id="${course.id}">
+          <div class="card-actions">
+            ${resetBtn}
+            ${deleteBtn}
+          </div>
+          <div class="card-header">
+            <h2 class="card-title">${course.name}</h2>
+          </div>
+          <div class="card-badges">
+            <span class="badge study">Изучается: ${course.study}</span>
+            <span class="badge attest">${course.attest}</span>
+            ${badgeExtra}
+          </div>
+          
+          <div class="local-progress">
+            <span>Заполнено элементов:</span>
+            <span class="progress-text">${filledCount} / ${items.length} ${filledCount === items.length && items.length > 0 ? '✓' : ''}</span>
+          </div>
+
+          <div class="fields-container">
+            ${itemsHTML}
+          </div>
+
+          <div class="result-wrapper">
+            <div class="result">
+              <div class="result-info">
+                <div class="result-label">Итог</div>
+                <div class="result-exact" data-exact>— <span>точный</span></div>
+                <div class="result-5scale" data-5scale></div>
+                <div class="warning-msg" data-warning></div>
+              </div>
+              <div class="result-right">
+                <div class="result-rounded" data-rounded>—</div>
+                <button class="btn-target" title="Рассчитать необходимый балл">🎯</button>
+              </div>
+            </div>
+            
+            <div class="target-panel">
+              <div class="target-header">
+                <div class="target-title">Цель по итоговой оценке</div>
+                <button class="target-close">✕</button>
+              </div>
+              <div class="target-options">
+                <button class="target-btn" data-val="7">7</button>
+                <button class="target-btn" data-val="8">8</button>
+                <button class="target-btn" data-val="9">9</button>
+                <button class="target-btn" data-val="10">10</button>
+              </div>
+              <div class="target-result">
+                Выберите цель, чтобы узнать, что нужно получить за оставшиеся элементы.
+              </div>
+            </div>
+          </div>
+          
+          <button class="btn-save" style="display:${filledCount === items.length && items.length > 0 ? 'block' : 'none'};">✓ В зачётку</button>
+        </div>
+      `;
+    });
+    
+    html += `</div>`;
+    section.innerHTML = html;
+    container.appendChild(section);
+  }
+
+  if (!hasVisibleSections) {
+    container.innerHTML = `<div class="empty-state">По вашему запросу ничего не найдено</div>`;
+  }
+
+  attachEvents();
+  recalcAll();
+}
+
+function renderElectiveCheckboxes() {
+  const container = document.getElementById("electiveCheckboxes");
+  container.innerHTML = "";
+  const electives = getAllCourses().filter(c => c.isElective);
+  
+  electives.forEach(course => {
+    const label = document.createElement("label");
+    label.className = "elective-label";
+    label.innerHTML = `
+      <input type="checkbox" value="${course.id}" />
+      <span>${course.name}</span>
+    `;
+    container.appendChild(label);
+  });
+}
+
+document.getElementById("saveElectives").addEventListener("click", () => {
+  const checked = Array.from(document.querySelectorAll("#electiveCheckboxes input:checked")).map(inp => inp.value);
+  if (checked.length === 0) { alert("Выберите хотя бы одну дисциплину!"); return; }
+  state.electiveChoice = checked;
+  saveState();
+  render();
+});
+
+function renderFacultativeCheckboxes() {
+  const engContainer = document.getElementById("englishCheckboxes");
+  const otherContainer = document.getElementById("otherFacCheckboxes");
+  engContainer.innerHTML = "";
+  otherContainer.innerHTML = "";
+  
+  const allFac = getAllCourses().filter(c => c.isFacultative);
+  
+  allFac.forEach(course => {
+    const label = document.createElement("label");
+    label.className = "elective-label";
+    label.innerHTML = `
+      <input type="checkbox" value="${course.id}" />
+      <span>${course.name}</span>
+    `;
+    
+    if (course.groups.includes("fac_eng")) {
+      engContainer.appendChild(label);
+    } else {
+      otherContainer.appendChild(label);
+    }
+  });
+}
+
+document.getElementById("saveFacultatives").addEventListener("click", () => {
+  const checked = Array.from(document.querySelectorAll("#facultativePrompt input:checked")).map(inp => inp.value);
+  if (checked.length === 0) { alert("Выберите хотя бы один факультатив!"); return; }
+  state.facultativeChoice = checked;
+  saveState();
+  render();
+});
+
+window.resetElectiveChoice = function() {
+  if(confirm("Сбросить выбор дисциплин по выбору?")) {
+    state.electiveChoice = [];
+    saveState();
+    render();
+  }
+};
+
+window.resetFacultativeChoice = function() {
+  if(confirm("Сбросить выбор факультативов?")) {
+    state.facultativeChoice = [];
+    saveState();
+    render();
+  }
+};
+
+function attachEvents() {
+  container.querySelectorAll("input[type=number]").forEach(inp => {
+    inp.addEventListener("input", onInput);
+    inp.addEventListener("keydown", (e) => {
+      if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
+    });
+  });
+
+  container.querySelectorAll(".btn-reset").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(confirm("Сбросить все баллы по этой дисциплине?")) {
+        const id = btn.dataset.id;
+        const course = getAllCourses().find(c => c.id === id);
+        const items = getCourseItems(course);
+        items.forEach((_, i) => {
+          delete state.active[`${id}:${i}`];
+        });
+        if (course.isSociology) delete state.active[`${id}:mode`];
+        saveState();
+        render();
+      }
+    });
+  });
+
+  container.querySelectorAll(".btn-delete").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if(confirm("Удалить эту дисциплину?")) {
+        const id = btn.dataset.id;
+        state.customCourses = state.customCourses.filter(c => c.id !== id);
+        saveState();
+        render();
+      }
+    });
+  });
+
+  container.querySelectorAll(".btn-target").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const card = e.target.closest(".card");
+      const panel = card.querySelector(".target-panel");
+      const isActive = panel.classList.contains("active");
+      
+      container.querySelectorAll(".target-panel.active").forEach(p => p.classList.remove("active"));
+      container.querySelectorAll(".btn-target.active").forEach(b => b.classList.remove("active"));
+      
+      if (!isActive) {
+        panel.classList.add("active");
+        btn.classList.add("active");
+        card.querySelectorAll(".target-btn").forEach(b => b.classList.remove("active"));
+        card.querySelector(".target-result").innerHTML = "Выберите цель, чтобы узнать, что нужно получить за оставшиеся элементы.";
+      }
+    });
+  });
+
+  container.querySelectorAll(".target-close").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const card = e.target.closest(".card");
+      card.querySelector(".target-panel").classList.remove("active");
+      card.querySelector(".btn-target").classList.remove("active");
+    });
+  });
+
+  container.querySelectorAll(".target-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const card = e.target.closest(".card");
+      card.querySelectorAll(".target-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      calculateTarget(card, parseInt(btn.dataset.val));
+    });
+  });
+
+  container.querySelectorAll(".btn-save").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const card = e.target.closest(".card");
+      const id = card.dataset.cardId;
+      
+      const course = getAllCourses().find(c => c.id === id);
+      const items = getCourseItems(course);
+      
+      state.archive[id] = { 
+        data: {}, 
+        items: items, 
+        courseInfo: { name: course.name, study: course.study, attest: course.attest, groups: course.groups, isFacultative: course.isFacultative } 
+      };
+      
+      items.forEach((_, i) => {
+        const key = `${id}:${i}`;
+        if (state.active[key] !== undefined) {
+          state.archive[id].data[`${id}:${i}`] = state.active[key];
+        }
+      });
+      
+      if (course.isSociology) {
+        state.archive[id].sociologyMode = state.active[`${id}:mode`] || 'auto';
+      }
+      
+      items.forEach((_, i) => delete state.active[`${id}:${i}`]);
+      if (course.isSociology) delete state.active[`${id}:mode`];
+      
+      saveState();
+      
+      card.style.transform = "scale(0.95)";
+      card.style.opacity = "0";
+      setTimeout(() => render(), 200);
+    });
+  });
+
+  container.querySelectorAll(".switch-btn").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      const id = btn.dataset.id;
+      const mode = btn.dataset.mode;
+      state.active[`${id}:mode`] = mode;
+      saveState();
+      render();
+    });
+  });
+}
+
+function onInput(e) {
+  const inp = e.target;
+  const key = `${inp.dataset.id}:${inp.dataset.index}`;
+  
+  let val = inp.value;
+  
+  if (val !== "") {
+    let normalized = val.replace(",", ".");
+    let num = parseFloat(normalized);
+    
+    if (isNaN(num)) num = 0;
+    else if (num > 10) num = 10;
+    else if (num < 0) num = 0;
+    
+    if (parseFloat(normalized) > 10) { inp.value = "10"; val = "10"; }
+    else if (parseFloat(normalized) < 0) { inp.value = "0"; val = "0"; }
+    
+    state.active[key] = val;
+  } else {
+    state.active[key] = "";
+  }
+
+  saveState();
+  
+  const card = inp.closest(".card");
+  updateCard(card);
+  updateGlobalProgress();
+  
+  const panel = card.querySelector(".target-panel");
+  if (panel.classList.contains("active")) {
+    const activeTargetBtn = card.querySelector(".target-btn.active");
+    if (activeTargetBtn) {
+      calculateTarget(card, parseInt(activeTargetBtn.dataset.val));
+    }
+  }
+}
+
+function updateCard(card) {
+  const id = card.dataset.cardId;
+  const course = getAllCourses().find(c => c.id === id);
+  if (!course) return;
+
+  const items = getCourseItems(course);
+  const inputs = card.querySelectorAll("input[type=number]");
+  let sum = 0;
+  let filledCount = 0;
+  let blockFail = false;
+  let blockScore = 10;
+
+  inputs.forEach(inp => {
+    const val = inp.value;
+    if (val !== "") {
+      filledCount++;
+      const n = parseFloat(val.replace(",", "."));
+      const w = parseFloat(inp.dataset.weight);
+      
+      if (inp.dataset.block === "true") {
+        blockScore = n;
+        if (n < 4) blockFail = true;
+        if (n < 4) inp.classList.add("block-fail");
+        else inp.classList.remove("block-fail");
+      }
+      
+      if (!isNaN(n)) sum += w * n;
+    }
+  });
+
+  inputs.forEach(inp => {
+    if (inp.dataset.block === "true" && inp.value !== "") return;
+    if (inp.value === "" && filledCount > 0) inp.classList.add("warn-border");
+    else inp.classList.remove("warn-border");
+  });
+
+  card.querySelector(".progress-text").innerHTML = 
+    `${filledCount} / ${items.length} ${filledCount === items.length && items.length > 0 ? '✓' : ''}`;
+    
+  const saveBtn = card.querySelector(".btn-save");
+  if (saveBtn) {
+    saveBtn.style.display = filledCount === items.length && items.length > 0 ? 'block' : 'none';
+  }
+
+  const exactEl = card.querySelector("[data-exact]");
+  const roundedEl = card.querySelector("[data-rounded]");
+  const scale5El = card.querySelector("[data-5scale]");
+  const warningEl = card.querySelector("[data-warning]");
+
+  if (filledCount === 0) {
+    exactEl.innerHTML = "— <span>точный</span>";
+    roundedEl.textContent = "—";
+    roundedEl.className = "result-rounded";
+    scale5El.textContent = "";
+    warningEl.classList.remove("active");
+    return;
+  }
+
+  const clamped = Math.max(0, Math.min(10, sum));
+  let finalScore = Math.round(clamped);
+  
+  if (blockFail) {
+    finalScore = Math.min(finalScore, Math.floor(blockScore));
+    warningEl.textContent = "Внимание: не сдан блокирующий элемент (оценка ниже 4). Итог заморожен до пересдачи.";
+    warningEl.classList.add("active");
+  } else {
+    warningEl.classList.remove("active");
+  }
+
+  let roundedForDisplay = finalScore;
+  if (clamped < 4) {
+    roundedForDisplay = Math.floor(clamped);
+  } else {
+    roundedForDisplay = Math.round(clamped);
+  }
+  
+  if (blockFail && roundedForDisplay > Math.floor(blockScore)) {
+      roundedForDisplay = Math.floor(blockScore);
+  }
+
+  exactEl.innerHTML = `${clamped.toFixed(2)} <span>точный</span>`;
+  roundedEl.textContent = roundedForDisplay;
+  roundedEl.className = "result-rounded " + 
+    (clamped >= 7 ? "good" : clamped >= 4 ? "warn" : "bad");
+    
+  scale5El.textContent = roundedForDisplay < 4 ? "Задолженность (2)" : `По 5-балльной: ${convertTo5Scale(roundedForDisplay)}`;
+  scale5El.style.color = roundedForDisplay < 4 ? "var(--bad)" : "var(--muted)";
+}
+
+function calculateTarget(card, targetScore) {
+  const id = card.dataset.cardId;
+  const course = getAllCourses().find(c => c.id === id);
+  if (!course) return;
+  
+  const items = getCourseItems(course);
+  const inputs = card.querySelectorAll("input[type=number]");
+  let currentSum = 0; 
+  let emptyItems = []; 
+
+  inputs.forEach((inp, index) => {
+    const val = inp.value;
+    const weight = parseFloat(inp.dataset.weight);
+    
+    if (val !== "") {
+      const n = parseFloat(val.replace(",", "."));
+      if (!isNaN(n)) currentSum += n * weight;
+    } else {
+      emptyItems.push({ weight: weight, label: items[index].label, isBlock: inp.dataset.block === "true" });
+    }
+  });
+
+  const resultEl = card.querySelector(".target-result");
+  const targetThreshold = targetScore - 0.5;
+
+  if (emptyItems.length === 0) {
+    if (currentSum >= targetThreshold) {
+      resultEl.innerHTML = `Все элементы заполнены. Ваш итог: <strong>${Math.min(10, currentSum).toFixed(2)}</strong> (достаточно для ${targetScore}).`;
+    } else {
+      resultEl.innerHTML = `Все элементы заполнены. Ваш итог: <strong>${Math.min(10, currentSum).toFixed(2)}</strong>. Для цели ${targetScore} нужно было бы набрать больше.`;
+    }
+    return;
+  }
+
+  const totalEmptyWeight = emptyItems.reduce((acc, item) => acc + item.weight, 0);
+  const maxPossible = Math.min(10, currentSum + totalEmptyWeight * 10);
+
+  if (maxPossible < targetThreshold) {
+    resultEl.innerHTML = `<span class="impossible">Цель ${targetScore} недостижима.</span> Максимально возможный точный балл: <strong>${maxPossible.toFixed(2)}</strong>`;
+    return;
+  }
+
+  let blockWarning = "";
+  const blockEmpty = emptyItems.filter(e => e.isBlock);
+  if (blockEmpty.length > 0) {
+    blockWarning = `<br><span style="color:var(--bad);font-size:12px">Внимание: "${blockEmpty[0].label}" — блокирующий элемент. За него нужно минимум 4.00.</span>`;
+  }
+
+  if (emptyItems.length === 1) {
+    const requiredScore = (targetThreshold - currentSum) / totalEmptyWeight;
+    if (requiredScore <= 0) {
+        resultEl.innerHTML = `Вы уже гарантированно получите ${targetScore} или больше!`;
+    } else {
+        resultEl.innerHTML = `За <strong>${emptyItems[0].label}</strong> нужно получить минимум: <strong>${requiredScore.toFixed(2)}</strong> ${blockWarning}`;
+    }
+    return;
+  }
+
+  const requiredAvg = (targetThreshold - currentSum) / totalEmptyWeight;
+  
+  if (requiredAvg > 10) {
+    resultEl.innerHTML = `<span class="impossible">Цель ${targetScore} недостижима.</span> Максимально возможный точный балл: <strong>${maxPossible.toFixed(2)}</strong>`;
+  } else if (requiredAvg <= 0) {
+    resultEl.innerHTML = `Вы уже гарантированно получите ${targetScore} или больше! ${blockWarning}`;
+  } else {
+    let text = `За оставшиеся (${emptyItems.length}) элементов нужно в среднем по <strong>${requiredAvg.toFixed(2)}</strong>.`;
+    resultEl.innerHTML = text + blockWarning;
+  }
+}
+
+function recalcAll() {
+  container.querySelectorAll(".card").forEach(updateCard);
+  updateGlobalProgress();
+}
+
+function updateGlobalProgress() {
+  let totalFields = 0;
+  let filledFields = 0;
+
+  getAllCourses().forEach(course => {
+    if (state.archive[course.id]) return;
+    if (course.isElective && !state.electiveChoice.includes(course.id)) return;
+    if (course.isFacultative && !state.facultativeChoice.includes(course.id)) return;
+    
+    const items = getCourseItems(course);
+    totalFields += items.length;
+    items.forEach((_, i) => {
+      const val = state.active[`${course.id}:${i}`];
+      if (val !== undefined && val !== "") filledFields++;
+    });
+  });
+
+  const pct = totalFields === 0 ? 0 : (filledFields / totalFields) * 100;
+  globalBar.style.width = pct + "%";
+  globalText.textContent = `Заполнено ${filledFields} из ${totalFields} полей (${Math.round(pct)}%)`;
+}
+
+function renderRecord() {
+  recordContainer.innerHTML = "";
+  
+  const archiveIds = Object.keys(state.archive);
+  
+  if (archiveIds.length === 0) {
+    recordContainer.innerHTML = `<div class="empty-state" style="grid-column:1/-1;">Зачётка пока пуста. Заполните все баллы по предмету в калькуляторе и нажмите «В зачётку».</div>`;
+    gpa10El.textContent = "0.0";
+    gpa5El.textContent = "0.0";
+    return;
+  }
+
+  let sum10 = 0;
+  let sum5 = 0;
+  let count = 0;
+  
+  const groups = { m1: [], m2: [], m3: [], m4: [], elective: [], facultative: [] };
+  
+  for (const id in state.archive) {
+    const arc = state.archive[id];
+    if (!arc.courseInfo) continue;
+    
+    let sum = 0;
+    let blockFail = false;
+    let blockScore = 10;
+    
+    const items = arc.items;
+    
+    items.forEach((it, i) => {
+      const val = arc.data[`${id}:${i}`];
+      if (val !== undefined && val !== "") {
+        const n = parseFloat(val.replace(",", "."));
+        const w = parseFloat(it.weight);
+        if (!isNaN(n)) sum += w * n;
+        
+        if (it.isBlock) {
+          blockScore = n;
+          if (n < 4) blockFail = true;
+        }
+      }
+    });
+    
+    const clamped = Math.max(0, Math.min(10, sum));
+    let finalScore = Math.round(clamped);
+    
+    if (blockFail) finalScore = Math.min(finalScore, Math.floor(blockScore));
+    
+    let roundedForDisplay = finalScore;
+    if (clamped < 4) roundedForDisplay = Math.floor(clamped);
+    else roundedForDisplay = Math.round(clamped);
+    if (blockFail && roundedForDisplay > Math.floor(blockScore)) roundedForDisplay = Math.floor(blockScore);
+
+    const score5 = convertTo5Scale(roundedForDisplay);
+    const isFailed = roundedForDisplay < 4 || blockFail;
+    
+    let includeInGpa = true;
+    if (arc.courseInfo.isFacultative) {
+      if (arc.includeInGpa === undefined) arc.includeInGpa = true;
+      includeInGpa = arc.includeInGpa;
+    }
+    
+    if (!isFailed && includeInGpa) {
+      sum10 += roundedForDisplay;
+      sum5 += score5;
+      count++;
+    }
+
+    const mainGroup = arc.courseInfo.groups[0];
+    
+    let cardClasses = "record-card";
+    if (isFailed) cardClasses += " failed";
+    if (arc.courseInfo.isFacultative) cardClasses += " is-facultative";
+
+    const gpaCheckbox = arc.courseInfo.isFacultative ? `
+      <div class="record-actions">
+        <label class="gpa-checkbox">
+          <input type="checkbox" class="gpa-toggle" data-id="${id}" ${includeInGpa ? 'checked' : ''} />
+          Учитывать в среднем балле
+        </label>
+        <button class="btn-return" data-id="${id}">↩ Вернуть в калькулятор</button>
+      </div>
+    ` : `
+      <div class="record-actions">
+        <button class="btn-return" data-id="${id}">↩ Вернуть в калькулятор</button>
+      </div>
+    `;
+    
+    const cardHTML = `
+      <div class="${cardClasses}" data-id="${id}">
+        <div class="record-info">
+          <h3 class="record-title">${arc.courseInfo.name}</h3>
+          <div class="record-meta">
+            <span>${arc.courseInfo.study}</span>
+            <span>${arc.courseInfo.attest}</span>
+          </div>
+          <div class="record-exact">Точный балл: ${clamped.toFixed(2)} ${isFailed ? '<span style="color:var(--bad);margin-left:8px;">(Задолженность)</span>' : ''}</div>
+          ${gpaCheckbox}
+        </div>
+        <div class="record-scores">
+          <div class="record-score-big ${isFailed ? 'failed' : ''}">${roundedForDisplay}</div>
+          <div class="record-score-5">${isFailed ? '2' : score5}</div>
+        </div>
+      </div>
+    `;
+    
+    if (groups[mainGroup]) groups[mainGroup].push(cardHTML);
+    else groups.facultative.push(cardHTML);
+  }
+
+  const groupTitles = { m1: "1 модуль", m2: "2 модуль", m3: "3 модуль", m4: "4 модуль", elective: "По выбору", facultative: "Факультативы" };
+
+  for (const key in groups) {
+    if (groups[key].length === 0) continue;
+    const section = document.createElement("div");
+    section.style.gridColumn = "1 / -1";
+    section.innerHTML = `
+      <div class="section-title" style="margin-top:24px;">${groupTitles[key]}</div>
+      <div class="grid" style="margin-bottom:0;">${groups[key].join("")}</div>
+    `;
+    recordContainer.appendChild(section);
+  }
+
+  if (count > 0) {
+    gpa10El.textContent = (sum10 / count).toFixed(2);
+    gpa5El.textContent = (sum5 / count).toFixed(2);
+  } else {
+    gpa10El.textContent = "—";
+    gpa5El.textContent = "—";
+  }
+
+  recordContainer.querySelectorAll(".btn-return").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = e.target.closest(".record-card").dataset.id;
+      
+      if (state.archive[id]) {
+        for (const key in state.archive[id].data) {
+          state.active[key] = state.archive[id].data[key];
+        }
+        if (state.archive[id].sociologyMode) {
+          state.active[`${id}:mode`] = state.archive[id].sociologyMode;
+        }
+        delete state.archive[id];
+        saveState();
+        renderRecord();
+      }
+    });
+  });
+
+  recordContainer.querySelectorAll(".gpa-toggle").forEach(checkbox => {
+    checkbox.addEventListener("change", (e) => {
+      const id = checkbox.dataset.id;
+      if (state.archive[id]) {
+        state.archive[id].includeInGpa = checkbox.checked;
+        saveState();
+        renderRecord();
+      }
+    });
+  });
+}
+
+// === МОДАЛКИ ===
+function openModal(type) {
+  modalOverlay.classList.add("active");
+  if (type === "export") {
+    document.getElementById("modalTitle").textContent = "Экспорт данных";
+    document.getElementById("modalDesc").textContent = "Скопируйте этот текст и сохраните в надежном месте.";
+    modalTextarea.value = JSON.stringify(state);
+    modalTextarea.readOnly = true;
+    modalAction.style.display = "none";
+    modalCopy.style.display = "block";
+  } else {
+    document.getElementById("modalTitle").textContent = "Импорт данных";
+    document.getElementById("modalDesc").textContent = "Вставьте ранее скопированный код в поле ниже и нажмите «Загрузить». Внимание: текущие данные будут перезаписаны!";
+    modalTextarea.value = "";
+    modalTextarea.readOnly = false;
+    modalAction.style.display = "block";
+    modalCopy.style.display = "none";
+  }
+}
+
+document.getElementById("exportBtn").addEventListener("click", () => openModal("export"));
+document.getElementById("importBtn").addEventListener("click", () => openModal("import"));
+
+document.getElementById("modalClose").addEventListener("click", () => modalOverlay.classList.remove("active"));
+modalOverlay.addEventListener("click", (e) => {
+  if (e.target === modalOverlay) modalOverlay.classList.remove("active");
+});
+
+document.getElementById("modalCopy").addEventListener("click", () => {
+  modalTextarea.select();
+  document.execCommand("copy");
+  document.getElementById("modalCopy").textContent = "Скопировано!";
+  setTimeout(() => { document.getElementById("modalCopy").textContent = "Копировать"; }, 2000);
+});
+
+document.getElementById("modalAction").addEventListener("click", () => {
+  try {
+    const imported = JSON.parse(modalTextarea.value);
+    if (typeof imported === 'object' && imported !== null) {
+      state = imported;
+      if (!state.active) state = { active: state, archive: {}, customCourses: [], electiveChoice: [], facultativeChoice: [] };
+      if (!state.archive) state.archive = {};
+      if (!state.customCourses) state.customCourses = [];
+      if (!state.electiveChoice) state.electiveChoice = [];
+      if (!state.facultativeChoice) state.facultativeChoice = [];
+      saveState();
+      modalOverlay.classList.remove("active");
+      render();
+      if (viewRecord.style.display !== "none") renderRecord();
+    } else {
+      alert("Неверный формат данных.");
+    }
+  } catch (err) {
+    alert("Ошибка: не удалось прочитать данные.");
+  }
+});
+
+// Кастомные дисциплины
+let customItemCount = 0;
+
+document.getElementById("addCustomBtn").addEventListener("click", () => {
+  customModal.classList.add("active");
+  document.getElementById("customName").value = "";
+  document.getElementById("customStudy").value = "1 модуль";
+  document.getElementById("customAttest").value = "Аттестация: 1 модуль";
+  document.getElementById("customItemsList").innerHTML = "";
+  customItemCount = 0;
+  addCustomItemRow();
+});
+
+function addCustomItemRow() {
+  const list = document.getElementById("customItemsList");
+  const row = document.createElement("div");
+  row.className = "custom-items";
+  row.innerHTML = `
+    <input type="text" placeholder="Название элемента" class="item-label" style="flex:2;" />
+    <input type="number" placeholder="Вес (0.1)" step="0.05" class="item-weight" style="flex:1; width:80px;" />
+    <button type="button" class="btn-delete-item" style="background:none;border:none;color:var(--bad);cursor:pointer;">✕</button>
+  `;
+  row.querySelector(".btn-delete-item").addEventListener("click", () => row.remove());
+  list.appendChild(row);
+}
+
+document.getElementById("addCustomItem").addEventListener("click", addCustomItemRow);
+
+document.getElementById("customCancel").addEventListener("click", () => customModal.classList.remove("active"));
+
+document.getElementById("customSave").addEventListener("click", () => {
+  const name = document.getElementById("customName").value.trim();
+  if (!name) { alert("Введите название"); return; }
+  
+  const rows = document.getElementById("customItemsList").querySelectorAll(".custom-items");
+  const items = [];
+  rows.forEach(row => {
+    const label = row.querySelector(".item-label").value.trim();
+    const weight = parseFloat(row.querySelector(".item-weight").value);
+    if (label && !isNaN(weight)) items.push({ label, weight });
+  });
+  
+  if (items.length === 0) { alert("Добавьте хотя бы один элемент"); return; }
+  
+  const totalW = items.reduce((a,b) => a + b.weight, 0);
+  if (Math.abs(totalW - 1) > 0.05) { alert("Сумма весов должна быть примерно равна 1.0 (сейчас " + totalW.toFixed(2) + ")"); return; }
+  
+  const group = document.getElementById("customGroup").value;
+  
+  const newCourse = {
+    id: "custom_" + Date.now(),
+    name: name,
+    study: document.getElementById("customStudy").value || "1 модуль",
+    attest: document.getElementById("customAttest").value || "Аттестация",
+    groups: [group],
+    items: items,
+    isCustom: true
+  };
+  
+  state.customCourses.push(newCourse);
+  saveState();
+  customModal.classList.remove("active");
+  render();
+});
+
+tabs.forEach(tab => {
+  tab.addEventListener("click", () => {
+    tabs.forEach(t => t.classList.remove("active"));
+    tab.classList.add("active");
+    currentTab = tab.dataset.target;
+    searchInput.value = "";
+    render();
+  });
+});
+
+searchInput.addEventListener("input", render);
+
+document.getElementById("clearAllBtn").addEventListener("click", () => {
+  if(confirm("Вы уверены, что хотите удалить ВСЕ данные?")) {
+    state = { active: {}, archive: {}, customCourses: [], electiveChoice: [], facultativeChoice: [] };
+    saveState();
+    render();
+    if (viewRecord.style.display !== "none") renderRecord();
+  }
+});
+
+render();
+</script>
+</body>
+</html>
