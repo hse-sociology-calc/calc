@@ -19,8 +19,6 @@
     --good:#3ddc97;
     --warn:#ffb84d;
     --bad:#ff6b6b;
-    --elective-color:#ffb84d;
-    --facultative-color:#3ddc97;
     --radius:18px;
   }
   *{box-sizing:border-box}
@@ -98,7 +96,6 @@
   }
   .btn.primary:hover{filter:brightness(1.08)}
 
-  /* Мобильное меню */
   .mobile-menu-btn {
     display:none; background:rgba(255,255,255,.05); border:1px solid var(--card-border);
     color:var(--text); padding:10px 16px; border-radius:12px; font-weight:600;
@@ -168,13 +165,14 @@
   .badge.elective{background:rgba(255,184,77,.15);color:#ffd599;border:1px solid rgba(255,184,77,.3)}
   .badge.facultative{background:rgba(61,220,151,.15);color:#a0f0d0;border:1px solid rgba(61,220,151,.3)}
   
-  .btn-reset, .btn-delete {
+  .btn-reset, .btn-delete, .btn-grades {
     background: rgba(255,255,255,.05); color: var(--muted); border: 1px solid var(--card-border);
     border-radius: 8px; padding: 4px 8px; cursor: pointer; font-size: 11px; transition: .2s;
   }
   .btn-reset:hover { color: var(--warn); border-color: var(--warn); }
   .btn-delete { background: rgba(255,107,107,.1); color: var(--bad); border-color: rgba(255,107,107,.2); }
   .btn-delete:hover { background: rgba(255,107,107,.2); }
+  .btn-grades:hover { color: var(--accent); border-color: var(--accent); }
 
   .card-actions {
     display:flex; justify-content:space-between; align-items:center;
@@ -205,6 +203,18 @@
   .field input::-webkit-outer-spin-button,
   .field input::-webkit-inner-spin-button{ -webkit-appearance:none;margin:0 }
   .field input[type=number]{ -moz-appearance:textfield }
+
+  .grades-panel {
+    display:none; padding:12px 16px 16px; background:rgba(108,140,255,.05);
+    border-top:1px solid var(--card-border); font-size:13px;
+  }
+  .grades-panel.active { display:block; animation:slideDown .2s ease; }
+  @keyframes slideDown {from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:none}}
+  .grades-row { display:flex; gap:8px; align-items:center; margin-bottom:10px; }
+  .grades-row input { width: 60px; padding:6px; border-radius:6px; border:1px solid var(--card-border); background:rgba(0,0,0,.2); color:#fff; text-align:center; outline:none; }
+  .grades-row span { color:var(--muted); font-size:12px; }
+  .grades-result { font-size:14px; font-weight:600; color:var(--good); margin-top:8px; }
+  .grades-panel label { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); cursor:pointer; margin-top:8px; }
 
   .result-wrapper{
     margin-top:auto;
@@ -240,12 +250,12 @@
   }
   .warning-msg.active { display:block; }
 
-  .btn-target, .btn-save, .btn-copy{
+  .btn-target, .btn-save, .btn-manual{
     background:rgba(255,255,255,.08);border:1px solid var(--card-border);
     border-radius:8px;padding:6px 10px;cursor:pointer;
     color:var(--text);font-size:16px;transition:.2s;display:flex;align-items:center;justify-content:center;
   }
-  .btn-target:hover, .btn-save:hover, .btn-copy:hover{background:rgba(108,140,255,.2);border-color:var(--accent)}
+  .btn-target:hover, .btn-save:hover, .btn-manual:hover{background:rgba(108,140,255,.2);border-color:var(--accent)}
   
   .btn-save {
     background: linear-gradient(135deg, rgba(61,220,151,.15), rgba(30,184,122,.15));
@@ -259,13 +269,21 @@
     box-shadow: 0 4px 15px rgba(61,220,151,.2);
   }
 
+  .btn-manual {
+    margin-top: 8px; width: 100%; font-size: 12px; padding: 6px 12px;
+    background: rgba(255,255,255,.02); border-color: rgba(255,255,255,.05);
+    color: var(--muted); font-weight: 500;
+  }
+  .btn-manual:hover {
+    background: rgba(255,255,255,.08); color: var(--text); border-color: var(--muted);
+  }
+
   .target-panel{
     display:none;padding:12px 16px 16px;
     background:rgba(108,140,255,.05);border-top:1px solid var(--card-border);
     font-size:13px;
   }
   .target-panel.active{display:block;animation:slideDown .2s ease}
-  @keyframes slideDown {from{opacity:0;transform:translateY(-5px)} to{opacity:1;transform:none}}
 
   .target-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
   .target-title{font-weight:600;color:#b9c7ff;font-size:12px;text-transform:uppercase;letter-spacing:0.5px}
@@ -507,7 +525,7 @@
   </div>
 
   <div class="footer-version" id="footerVersion">
-    Версия 1.3 · История обновлений
+    Версия 1.4 · История обновлений
   </div>
 </div>
 
@@ -546,6 +564,19 @@
         <button class="btn" id="customCancel">Отмена</button>
         <button class="btn primary" id="customSave">Создать</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Модалка ручного ввода -->
+<div class="modal-overlay" id="manualModal">
+  <div class="modal">
+    <h3>Вписать итоговый балл</h3>
+    <p>Если предмет уже сдан и известен итоговый балл, введите его здесь. Предмет уйдет в зачётку.</p>
+    <input type="number" id="manualScoreInput" step="0.01" min="0" max="10" placeholder="Балл от 0 до 10" style="width:100%; padding:12px; margin-bottom:16px; border-radius:8px; border:1px solid var(--card-border); background:rgba(0,0,0,.2); color:#fff; font-size:16px; outline:none;" />
+    <div class="modal-btns">
+      <button class="btn" id="manualCancel">Отмена</button>
+      <button class="btn primary" id="manualSave">Сохранить в зачётку</button>
     </div>
   </div>
 </div>
@@ -701,27 +732,31 @@ const SOCIOLOGY_FORMULAS = {
   ]
 };
 
-// === ИСТОРИЯ ВЕРСИЙ ===
 const CHANGELOG = [
   {
-    version: "1.3",
+    version: "1.4",
     date: "Сегодня",
-    desc: "Добавлено мобильное меню, кнопка копирования оценки, история версий. Исправлена ошибка с дублированием."
+    desc: "Добавлен мини-калькулятор семинаров (и лекций), возможность ручного ввода итогового балла для зачётки, сохранение текущего выбора факультативов при изменении."
+  },
+  {
+    version: "1.3",
+    date: "Ранее",
+    desc: "Добавлено мобильное меню, кнопка копирования оценки, история версий."
   },
   {
     version: "1.2",
     date: "Ранее",
-    desc: "Добавлены факультативы (Английский, Вайб-кодинг, ИИ), выбор дисциплин по выбору, кнопки сброса, умная миграция и вечный ключ хранения."
+    desc: "Добавлены факультативы, выбор дисциплин, кнопки сброса, умная миграция и вечный ключ хранения."
   },
   {
     version: "1.1",
     date: "Ранее",
-    desc: "Добавлена Зачётка, симулятор целей, поддержка блокирующих элементов (замок), 5-балльная шкала, учет правила округления < 4."
+    desc: "Добавлена Зачётка, симулятор целей, поддержка блокирующих элементов, 5-балльная шкала."
   },
   {
     version: "1.0",
     date: "Старт",
-    desc: "Первая версия калькулятора. Ввод баллов, расчет итоговой оценки и целей."
+    desc: "Первая версия калькулятора."
   }
 ];
 
@@ -730,7 +765,7 @@ const STORAGE_KEY = 'hse_sociology_grades_master_v1';
 function loadState() {
   let saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
-    try { return JSON.parse(saved); } catch (e) { console.warn("Ошибка парсинга текущих данных", e); }
+    try { return JSON.parse(saved); } catch (e) {}
   }
 
   const oldKeys = [
@@ -753,8 +788,6 @@ function loadState() {
         if (!parsed.customCourses) parsed.customCourses = [];
         if (!parsed.electiveChoice) parsed.electiveChoice = [];
         if (!parsed.facultativeChoice) parsed.facultativeChoice = [];
-        
-        console.log("Успешно мигрированы данные из " + key);
         return parsed;
       } catch (e) {}
     }
@@ -807,7 +840,6 @@ function convertTo5Scale(score10) {
   return 2;
 }
 
-// Мобильное меню
 document.getElementById("mobileMenuBtn").addEventListener("click", () => {
   const tabsEl = document.getElementById("tabs");
   const btn = document.getElementById("mobileMenuBtn");
@@ -938,11 +970,14 @@ function render() {
         }
 
         const blockBadge = it.isBlock ? `🔒` : "";
+        // Определяем, есть ли смысл считать семинары/лекции (если в названии есть "семинар" или "лекц")
+        const isSeminarType = /семинар|лекц/i.test(it.label);
+        const gradesBtn = isSeminarType ? `<button class="btn-grades" data-id="${course.id}" data-index="${j}" title="Рассчитать балл">📊</button>` : "";
 
         return `
           <div class="field">
             <label>
-              <span>${blockBadge} ${it.label}</span>
+              <span>${blockBadge} ${it.label} ${gradesBtn}</span>
               <span class="w">${(it.weight*100).toFixed(1)}%</span>
             </label>
             <input type="number" min="0" max="10" step="0.01" inputmode="decimal"
@@ -998,7 +1033,6 @@ function render() {
               </div>
               <div class="result-right">
                 <div class="result-rounded" data-rounded>—</div>
-                <button class="btn-copy" title="Скопировать оценку">📋</button>
                 <button class="btn-target" title="Рассчитать необходимый балл">🎯</button>
               </div>
             </div>
@@ -1021,6 +1055,7 @@ function render() {
           </div>
           
           <button class="btn-save" style="display:${filledCount === items.length && items.length > 0 ? 'block' : 'none'};">✓ В зачётку</button>
+          <button class="btn-manual" data-id="${course.id}">✍️ Вписать итоговый балл вручную</button>
         </div>
       `;
     });
@@ -1046,8 +1081,10 @@ function renderElectiveCheckboxes() {
   electives.forEach(course => {
     const label = document.createElement("label");
     label.className = "elective-label";
+    // Если уже выбран, ставим галочку
+    const isChecked = state.electiveChoice.includes(course.id) ? "checked" : "";
     label.innerHTML = `
-      <input type="checkbox" value="${course.id}" />
+      <input type="checkbox" value="${course.id}" ${isChecked} />
       <span>${course.name}</span>
     `;
     container.appendChild(label);
@@ -1056,7 +1093,6 @@ function renderElectiveCheckboxes() {
 
 document.getElementById("saveElectives").addEventListener("click", () => {
   const checked = Array.from(document.querySelectorAll("#electiveCheckboxes input:checked")).map(inp => inp.value);
-  if (checked.length === 0) { alert("Выберите хотя бы одну дисциплину!"); return; }
   state.electiveChoice = checked;
   saveState();
   document.getElementById("tabs").classList.remove("show");
@@ -1075,8 +1111,10 @@ function renderFacultativeCheckboxes() {
   allFac.forEach(course => {
     const label = document.createElement("label");
     label.className = "elective-label";
+    // Если уже выбран, ставим галочку
+    const isChecked = state.facultativeChoice.includes(course.id) ? "checked" : "";
     label.innerHTML = `
-      <input type="checkbox" value="${course.id}" />
+      <input type="checkbox" value="${course.id}" ${isChecked} />
       <span>${course.name}</span>
     `;
     
@@ -1090,7 +1128,6 @@ function renderFacultativeCheckboxes() {
 
 document.getElementById("saveFacultatives").addEventListener("click", () => {
   const checked = Array.from(document.querySelectorAll("#facultativePrompt input:checked")).map(inp => inp.value);
-  if (checked.length === 0) { alert("Выберите хотя бы один факультатив!"); return; }
   state.facultativeChoice = checked;
   saveState();
   document.getElementById("tabs").classList.remove("show");
@@ -1099,19 +1136,15 @@ document.getElementById("saveFacultatives").addEventListener("click", () => {
 });
 
 window.resetElectiveChoice = function() {
-  if(confirm("Сбросить выбор дисциплин по выбору?")) {
-    state.electiveChoice = [];
-    saveState();
-    render();
-  }
+  electivePrompt.style.display = "block";
+  renderElectiveCheckboxes();
+  container.innerHTML = "";
 };
 
 window.resetFacultativeChoice = function() {
-  if(confirm("Сбросить выбор факультативов?")) {
-    state.facultativeChoice = [];
-    saveState();
-    render();
-  }
+  facultativePrompt.style.display = "block";
+  renderFacultativeCheckboxes();
+  container.innerHTML = "";
 };
 
 function attachEvents() {
@@ -1119,6 +1152,105 @@ function attachEvents() {
     inp.addEventListener("input", onInput);
     inp.addEventListener("keydown", (e) => {
       if (["e", "E", "+", "-"].includes(e.key)) e.preventDefault();
+    });
+  });
+
+  // Панель семинаров
+  container.querySelectorAll(".btn-grades").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const field = btn.closest(".field");
+      // Проверяем, есть ли уже панель
+      let panel = field.nextElementSibling;
+      if (panel && panel.classList.contains("grades-panel")) {
+        panel.classList.toggle("active");
+        return;
+      }
+      
+      panel = document.createElement("div");
+      panel.className = "grades-panel active";
+      panel.innerHTML = `
+        <div class="grades-row">
+          Всего: <input type="number" class="total-inp" value="13" min="1" />
+          Посещено: <input type="number" class="visited-inp" value="12" min="0" />
+        </div>
+        <label>
+          <input type="checkbox" class="round-check" /> Округлить балл
+        </label>
+        <div class="grades-result">Результат: 9.23</div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <button class="btn primary apply-grades" style="flex:1; font-size:12px; padding:6px;">Применить</button>
+          <button class="btn close-grades" style="flex:1; font-size:12px; padding:6px;">Отмена</button>
+        </div>
+      `;
+      field.insertAdjacentElement("afterend", panel);
+
+      const totalInp = panel.querySelector(".total-inp");
+      const visitedInp = panel.querySelector(".visited-inp");
+      const roundCheck = panel.querySelector(".round-check");
+      const resultEl = panel.querySelector(".grades-result");
+
+      function calc() {
+        const total = parseInt(totalInp.value) || 1;
+        const visited = parseInt(visitedInp.value) || 0;
+        let score = (visited / total) * 10;
+        if (roundCheck.checked) score = Math.round(score);
+        resultEl.textContent = `Результат: ${score.toFixed(2)}`;
+        return score;
+      }
+
+      totalInp.addEventListener("input", calc);
+      visitedInp.addEventListener("input", calc);
+      roundCheck.addEventListener("change", calc);
+      calc();
+
+      panel.querySelector(".apply-grades").addEventListener("click", () => {
+        const score = calc();
+        const input = field.querySelector("input[type=number]");
+        input.value = score.toFixed(2);
+        input.dispatchEvent(new Event("input"));
+        panel.remove();
+      });
+
+      panel.querySelector(".close-grades").addEventListener("click", () => {
+        panel.remove();
+      });
+    });
+  });
+
+  // Ручной ввод
+  container.querySelectorAll(".btn-manual").forEach(btn => {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const id = btn.dataset.id;
+      const course = getAllCourses().find(c => c.id === id);
+      const manualModal = document.getElementById("manualModal");
+      const input = document.getElementById("manualScoreInput");
+      
+      manualModal.classList.add("active");
+      input.value = "";
+      input.focus();
+      
+      document.getElementById("manualSave").onclick = () => {
+        const score = parseFloat(input.value.replace(",", "."));
+        if (isNaN(score) || score < 0 || score > 10) {
+          alert("Пожалуйста, введите число от 0 до 10");
+          return;
+        }
+        
+        const rounded = Math.round(score);
+        const final5 = convertTo5Scale(rounded);
+        
+        state.archive[id] = {
+          isManual: true,
+          manualScore: score,
+          courseInfo: { name: course.name, study: course.study, attest: course.attest, groups: course.groups, isFacultative: course.isFacultative }
+        };
+        
+        saveState();
+        manualModal.classList.remove("active");
+        render();
+      };
     });
   });
 
@@ -1148,32 +1280,6 @@ function attachEvents() {
         saveState();
         render();
       }
-    });
-  });
-
-  // Копирование
-  container.querySelectorAll(".btn-copy").forEach(btn => {
-    btn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      const card = e.target.closest(".card");
-      const course = getAllCourses().find(c => c.id === card.dataset.cardId);
-      const rounded = card.querySelector("[data-rounded]").textContent;
-      const exact = card.querySelector("[data-exact]").innerText.split(' ')[0];
-      
-      if(rounded === "—") {
-        btn.textContent = "❌";
-        setTimeout(() => btn.textContent = "📋", 1500);
-        return;
-      }
-
-      const textToCopy = `${course.name}: ${exact} (округлённая оценка: ${rounded})`;
-      navigator.clipboard.writeText(textToCopy).then(() => {
-        btn.textContent = "✅";
-        setTimeout(() => btn.textContent = "📋", 1500);
-      }).catch(() => {
-        btn.textContent = "❌";
-        setTimeout(() => btn.textContent = "📋", 1500);
-      });
     });
   });
 
@@ -1505,38 +1611,53 @@ function renderRecord() {
     const arc = state.archive[id];
     if (!arc.courseInfo) continue;
     
-    let sum = 0;
-    let blockFail = false;
-    let blockScore = 10;
+    let clamped = 0;
+    let roundedForDisplay = 0;
+    let score5 = 2;
+    let isFailed = false;
     
-    const items = arc.items;
-    
-    items.forEach((it, i) => {
-      const val = arc.data[`${id}:${i}`];
-      if (val !== undefined && val !== "") {
-        const n = parseFloat(val.replace(",", "."));
-        const w = parseFloat(it.weight);
-        if (!isNaN(n)) sum += w * n;
-        
-        if (it.isBlock) {
-          blockScore = n;
-          if (n < 4) blockFail = true;
-        }
+    if (arc.isManual) {
+      clamped = arc.manualScore;
+      roundedForDisplay = Math.round(clamped);
+      if (roundedForDisplay < 4) {
+        roundedForDisplay = Math.floor(clamped);
       }
-    });
-    
-    const clamped = Math.max(0, Math.min(10, sum));
-    let finalScore = Math.round(clamped);
-    
-    if (blockFail) finalScore = Math.min(finalScore, Math.floor(blockScore));
-    
-    let roundedForDisplay = finalScore;
-    if (clamped < 4) roundedForDisplay = Math.floor(clamped);
-    else roundedForDisplay = Math.round(clamped);
-    if (blockFail && roundedForDisplay > Math.floor(blockScore)) roundedForDisplay = Math.floor(blockScore);
+      score5 = convertTo5Scale(roundedForDisplay);
+      isFailed = roundedForDisplay < 4;
+    } else {
+      let sum = 0;
+      let blockFail = false;
+      let blockScore = 10;
+      
+      const items = arc.items;
+      
+      items.forEach((it, i) => {
+        const val = arc.data[`${id}:${i}`];
+        if (val !== undefined && val !== "") {
+          const n = parseFloat(val.replace(",", "."));
+          const w = parseFloat(it.weight);
+          if (!isNaN(n)) sum += w * n;
+          
+          if (it.isBlock) {
+            blockScore = n;
+            if (n < 4) blockFail = true;
+          }
+        }
+      });
+      
+      clamped = Math.max(0, Math.min(10, sum));
+      let finalScore = Math.round(clamped);
+      
+      if (blockFail) finalScore = Math.min(finalScore, Math.floor(blockScore));
+      
+      roundedForDisplay = finalScore;
+      if (clamped < 4) roundedForDisplay = Math.floor(clamped);
+      else roundedForDisplay = Math.round(clamped);
+      if (blockFail && roundedForDisplay > Math.floor(blockScore)) roundedForDisplay = Math.floor(blockScore);
 
-    const score5 = convertTo5Scale(roundedForDisplay);
-    const isFailed = roundedForDisplay < 4 || blockFail;
+      score5 = convertTo5Scale(roundedForDisplay);
+      isFailed = roundedForDisplay < 4 || blockFail;
+    }
     
     let includeInGpa = true;
     if (arc.courseInfo.isFacultative) {
@@ -1700,7 +1821,6 @@ document.getElementById("modalAction").addEventListener("click", () => {
   }
 });
 
-// История версий
 document.getElementById("footerVersion").addEventListener("click", () => {
   const list = document.getElementById("changelogList");
   list.innerHTML = CHANGELOG.map(v => `
@@ -1722,7 +1842,6 @@ document.getElementById("changelogModal").addEventListener("click", (e) => {
   }
 });
 
-// Кастомные дисциплины
 let customItemCount = 0;
 
 document.getElementById("addCustomBtn").addEventListener("click", () => {
@@ -1785,6 +1904,10 @@ document.getElementById("customSave").addEventListener("click", () => {
   saveState();
   customModal.classList.remove("active");
   render();
+});
+
+document.getElementById("manualCancel").addEventListener("click", () => {
+  document.getElementById("manualModal").classList.remove("active");
 });
 
 tabs.forEach(tab => {
